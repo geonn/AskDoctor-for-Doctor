@@ -1,0 +1,18 @@
+<Alloy>
+	<Window id="win" title="Home" fullscreen="false">
+    	<ScrollView class='hfill wfill vert conthsize contwfill' bottom="110" top="10" id="chatroom">
+    		<View id="inner_area" class="wfill hsize vert">
+    			
+    		</View>
+    	</ScrollView>
+    	<View class="wfill vert" bottom="0" height="110" >
+    		<Button class="button" onClick="closeRoom" bottom="10" backgroundColor="#00c8a9">End Session</Button>
+    		<View class="wfill hsize" backgroundColor="#20243e">
+    			<TextField class="wfill hsize" left="10" height="40" right="120" bottom="10" id="message" hintText=""></TextField>
+    			<Button class="small_button" height="40" width="60" top="10" right="55" onClick="SendMessage">Send</Button>
+    			<ImageView image="/images/icons/icon_take_photo_nobg.png" top="15" right="30" width="20" ></ImageView>
+    			<ImageView image="/images/icons/icon_take_photo_nobg.png" top="15" right="5" width="20" ></ImageView>
+    		</View>
+    	</View>
+    </Window>
+</Alloy>

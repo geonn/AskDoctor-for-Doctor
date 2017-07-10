@@ -1,0 +1,24 @@
+<Alloy>
+	<NavigationWindow platform="ios" id="navWin">
+		<Window title="Ask Doctor" color="#ffffff" id="win">
+			<View class="wfill hfill vert">
+				<ImageView image="/images/logo_text.png" top="80" width="50%" />
+				<TextField id="username" hintText="Email" top="80"></TextField>
+				<TextField id="password" hintText="Password" passwordMask="true"></TextField>
+				<Button onClick="do_login" class="button" title="Sign In"></Button>
+			</View>
+		</Window>
+	</NavigationWindow>
+	<Window title="Ask Doctor" color="#ffffff" id="win" platform="android">
+		<View layout="vertical" id="loadingBar" height="0" width="120" borderRadius="15" backgroundColor="#2E2E2E" >
+	        <ActivityIndicator id="activityIndicator" />
+	    	<Label top="5" text="Loading" color="#ffffff" />
+		</View>
+		<ScrollView class="wfill hfill vert" contentHeight="Ti.UI.SIZE" contentWidth="Ti.UI.FILL">
+			<ImageView image="/images/logo_text.png"  top="80" width="50%" />
+			<TextField id="username" top="80" hintText="Username"></TextField>
+			<TextField id="password" hintText="Password" passwordMask="true"></TextField>
+			<Button onClick="do_login" class="button" title="Sign In"></Button>
+		</ScrollView>
+	</Window>
+</Alloy>
