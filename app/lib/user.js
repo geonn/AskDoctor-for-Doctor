@@ -19,11 +19,13 @@ exports.updateProfile = function(params, _callback){
 };
 
 exports.logout = function(_callback) {
-	Ti.App.Properties.setString('dr_id', "");
-	Ti.App.Properties.setString('dr_id', "");
-	Ti.App.Properties.setString('specialty', "");
-	Ti.App.Properties.setString('clinic_id', "");
-	Ti.App.Properties.setString('name', "");
+	Ti.App.Properties.removeProperty('user_id');
+	Ti.App.Properties.removeProperty('fullname');
+	Ti.App.Properties.removeProperty('email');
+	Ti.App.Properties.removeProperty('mobile');
+	Ti.App.Properties.removeProperty('img_path');
+	Ti.App.Properties.removeProperty('thumb_path');
+	Ti.App.Properties.removeProperty('point');
 	console.log('start callback');
 	_callback && _callback();
 };
