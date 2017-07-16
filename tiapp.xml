@@ -1,120 +1,119 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ti:app xmlns:ti="http://ti.appcelerator.org">
-    <id>com.plux.pluxForDoctor</id>
-    <name>AskDoctor for Doctor</name>
-    <version>1.0.1.1000</version>
-    <publisher>yikonnlau</publisher>
-    <url>undefined</url>
-    <description>undefined</description>
-    <copyright>2017 by yikonnlau</copyright>
-    <icon>appicon.png</icon>
-    <fullscreen>false</fullscreen>
-    <navbar-hidden>false</navbar-hidden>
-    <analytics>true</analytics>
-    <guid>b317a93e-dfe7-4123-9555-c30f6cb5eef8</guid>
-    <property name="ti.ui.defaultunit" type="string">dp</property>
-    <property name="run-on-main-thread" type="bool">true</property>
-    <ios>
-        <enable-launch-screen-storyboard>true</enable-launch-screen-storyboard>
-        <use-app-thinning>true</use-app-thinning>
-        <plist>
-            <dict>
-                <key>UISupportedInterfaceOrientations~iphone</key>
-                <array>
-                    <string>UIInterfaceOrientationPortrait</string>
-                </array>
-                <key>UISupportedInterfaceOrientations~ipad</key>
-                <array>
-                    <string>UIInterfaceOrientationPortrait</string>
-                    <string>UIInterfaceOrientationPortraitUpsideDown</string>
-                    <string>UIInterfaceOrientationLandscapeLeft</string>
-                    <string>UIInterfaceOrientationLandscapeRight</string>
-                </array>
-                <key>UIRequiresPersistentWiFi</key>
-                <false/>
-                <key>UIPrerenderedIcon</key>
-                <false/>
-                <key>UIStatusBarHidden</key>
-                <false/>
-                <key>UIStatusBarStyle</key>
-                <string>UIStatusBarStyleDefault</string>
-                <key>NSLocationAlwaysUsageDescription</key>
-                <string>
+<ti:app 
+  xmlns:ti="http://ti.appcelerator.org">
+  <id>com.plux.pluxForDoctor</id>
+  <name>AskDoctor for Doctor</name>
+  <version>1.0.1.1002</version>
+  <publisher>yikonnlau</publisher>
+  <url>undefined</url>
+  <description>undefined</description>
+  <copyright>2017 by yikonnlau</copyright>
+  <icon>appicon.png</icon>
+  <fullscreen>false</fullscreen>
+  <navbar-hidden>false</navbar-hidden>
+  <analytics>true</analytics>
+  <guid>41556deb-7823-4bc2-9111-c30f6cb5eef8</guid>
+  <property name="ti.ui.defaultunit" type="string">dp</property>
+  <property name="run-on-main-thread" type="bool">true</property>
+  <ios>
+    <enable-launch-screen-storyboard>true</enable-launch-screen-storyboard>
+    <use-app-thinning>true</use-app-thinning>
+    <plist>
+      <dict>
+        <key>UISupportedInterfaceOrientations~iphone</key>
+        <array>
+          <string>UIInterfaceOrientationPortrait</string>
+        </array>
+        <key>UISupportedInterfaceOrientations~ipad</key>
+        <array>
+          <string>UIInterfaceOrientationPortrait</string>
+          <string>UIInterfaceOrientationPortraitUpsideDown</string>
+          <string>UIInterfaceOrientationLandscapeLeft</string>
+          <string>UIInterfaceOrientationLandscapeRight</string>
+        </array>
+        <key>UIRequiresPersistentWiFi</key>
+        <false/>
+        <key>UIPrerenderedIcon</key>
+        <false/>
+        <key>UIStatusBarHidden</key>
+        <false/>
+        <key>UIStatusBarStyle</key>
+        <string>UIStatusBarStyleDefault</string>
+        <key>NSLocationAlwaysUsageDescription</key>
+        <string>
                    	We will use your location to find out the nearest patient for you.
                 </string>
-                <key>NSPhotoLibraryUsageDescription</key>
-                <string>
+        <key>NSPhotoLibraryUsageDescription</key>
+        <string>
                     Attach photo in the chatroom.
                 </string>
-            </dict>
-        </plist>
-    </ios>
-    <android xmlns:android="http://schemas.android.com/apk/res/android">
-        <manifest android:versionCode="1" android:versionName="1.0.0.0">
-            <application android:debuggable="false"
-                android:hardwareAccelerated="false"
-                android:largeHeap="true" android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-                <meta-data
-                    android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyBJ0EF9lpsbttU_OdKA3BBxscR0ygt9D2A"/>
-                <intent-filter>
-                    <action android:name="android.intent.action.SEND"/>
-                    <category android:name="android.intent.category.DEFAULT"/>
-                    <data android:mimeType="image/*"/>
-                </intent-filter>
-                <activity
-                    android:configChanges="keyboardHidden|orientation|screenSize"
-                    android:label="@string/app_name"
-                    android:name="com.android.packageinstaller" android:theme="@style/Theme.AppCompat.Light.NoActionBar">
-                    <intent-filter>
-                        <action android:name="android.intent.action.VIEW"/>
-                        <category android:name="android.intent.category.DEFAULT"/>
-                    </intent-filter>
-                    <data android:host="" android:scheme="waze"/>
-                </activity>
-            </application>
-            <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
-            <uses-permission android:name="android.permission.READ_CONTACTS"/>
-            <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="23"/>
-        </manifest>
-    </android>
-    <mobileweb>
-        <precache/>
-        <splash>
-            <enabled>true</enabled>
-            <inline-css-images>true</inline-css-images>
-        </splash>
-        <theme>default</theme>
-    </mobileweb>
-    <modules>
-        <module platform="commonjs">ti.cloud</module>
-        <module platform="android">ti.cloudpush</module>
-    </modules>
-    <deployment-targets>
-        <target device="android">true</target>
-        <target device="ipad">true</target>
-        <target device="iphone">true</target>
-        <target device="mobileweb">false</target>
-    </deployment-targets>
-    <sdk-version>6.0.1.GA</sdk-version>
-    <plugins>
-        <plugin version="1.0">ti.alloy</plugin>
-    </plugins>
-    <property name="appc-app-id" type="string">59631fcb73e7625cdba14c93</property>
-    <property name="acs-authbase-url-development" type="string">https://secure-identity.cloud.appcelerator.com</property>
-    <property name="acs-base-url-development" type="string">https://api.cloud.appcelerator.com</property>
-    <property name="acs-oauth-secret-development" type="string">QoYjridL33O7HnZKeu6WzLZ4jRMaEfRJ</property>
-    <property name="acs-oauth-key-development" type="string">esyAH5dCrccEvZwVC5rEF1zgJi00OQAm</property>
-    <property name="acs-api-key-development" type="string">ul2trVlBhg1gQ7srB9QCSnu8bJOsuy2o</property>
-    <property name="acs-username-development" type="string">appc_app_user_dev</property>
-    <property name="acs-password-development" type="string">gYdGrUQcFqmNJTtIsk</property>
-    <property name="acs-authbase-url-production" type="string">https://secure-identity.cloud.appcelerator.com</property>
-    <property name="acs-base-url-production" type="string">https://api.cloud.appcelerator.com</property>
-    <property name="acs-oauth-secret-production" type="string">ieDRk13sT4wzhon9AEHmkIh6WqpbH67X</property>
-    <property name="acs-oauth-key-production" type="string">zodn3Q4mddQoBUUJT84Ov7wGwuabe2xA</property>
-    <property name="acs-api-key-production" type="string">iSAs49dt51paS8yNJaHQXaKyDTUkHYea</property>
-    <property name="acs-username-production" type="string">appc_app_user</property>
-    <property name="acs-password-production" type="string">xuf5xtIiOz6WdAZcNg</property>
-    <property name="appc-org-id" type="string">100026224</property>
-    <property name="appc-creator-user-id" type="string">37d3be16-02d7-4f77-9c31-7aadd8bc5011</property>
-    <property name="ti.android.useLegacyWindow" type="bool">true</property>
+      </dict>
+    </plist>
+  </ios>
+  <android 
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <manifest android:versionCode="1" android:versionName="1.0.0.0">
+      <application android:debuggable="false" android:hardwareAccelerated="false" android:largeHeap="true" android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+        <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyBJ0EF9lpsbttU_OdKA3BBxscR0ygt9D2A"/>
+        <intent-filter>
+          <action android:name="android.intent.action.SEND"/>
+          <category android:name="android.intent.category.DEFAULT"/>
+          <data android:mimeType="image/*"/>
+        </intent-filter>
+        <activity android:configChanges="keyboardHidden|orientation|screenSize" android:label="@string/app_name" android:name="com.android.packageinstaller" android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+          <intent-filter>
+            <action android:name="android.intent.action.VIEW"/>
+            <category android:name="android.intent.category.DEFAULT"/>
+          </intent-filter>
+          <data android:host="" android:scheme="waze"/>
+        </activity>
+      </application>
+      <uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+      <uses-permission android:name="android.permission.READ_CONTACTS"/>
+      <uses-sdk android:minSdkVersion="16" android:targetSdkVersion="23"/>
+    </manifest>
+  </android>
+  <mobileweb>
+    <precache/>
+    <splash>
+      <enabled>true</enabled>
+      <inline-css-images>true</inline-css-images>
+    </splash>
+    <theme>default</theme>
+  </mobileweb>
+  <modules>
+    <module platform="commonjs">ti.cloud</module>
+    <module platform="android">ti.cloudpush</module>
+    <module platform="android">hyperloop</module>
+    <module platform="iphone">hyperloop</module>
+  </modules>
+  <deployment-targets>
+    <target device="android">true</target>
+    <target device="ipad">true</target>
+    <target device="iphone">true</target>
+    <target device="mobileweb">false</target>
+  </deployment-targets>
+  <sdk-version>6.0.1.GA</sdk-version>
+  <plugins>
+    <plugin version="1.0">ti.alloy</plugin>
+    <plugin>hyperloop</plugin>
+  </plugins>
+  <property name="appc-app-id" type="string">596b724f7316d873002b887a</property>
+  <property name="acs-authbase-url-development" type="string">https://secure-identity.cloud.appcelerator.com</property>
+  <property name="acs-base-url-development" type="string">https://api.cloud.appcelerator.com</property>
+  <property name="acs-oauth-secret-development" type="string">tPQvCwkkMHxAwY8JGzwuHSFwmdFWOmyO</property>
+  <property name="acs-oauth-key-development" type="string">R0nxHefKrxLETcyHokjbw8UPnntKqKnK</property>
+  <property name="acs-api-key-development" type="string">Yn8qCUyi8nUlVmWtf4hnqsCkcXgG3mV1</property>
+  <property name="acs-username-development" type="string">appc_app_user_dev</property>
+  <property name="acs-password-development" type="string">u9X6HJR9cvK1xpiuZx</property>
+  <property name="acs-authbase-url-production" type="string">https://secure-identity.cloud.appcelerator.com</property>
+  <property name="acs-base-url-production" type="string">https://api.cloud.appcelerator.com</property>
+  <property name="acs-oauth-secret-production" type="string">WVEUEju9Js2GkxuQGkyDDNHgCee0ucsj</property>
+  <property name="acs-oauth-key-production" type="string">wkBaLquO1OFQlGG0LwRWoaFbWS0dXOAp</property>
+  <property name="acs-api-key-production" type="string">WNvLlXO3prSATjkneRTUkVgoFdOy8Ei7</property>
+  <property name="acs-username-production" type="string">appc_app_user</property>
+  <property name="acs-password-production" type="string">72vCs0Y8Wo0SvBVKMS</property>
+  <property name="appc-org-id" type="string">100016072</property>
+  <property name="appc-creator-user-id" type="string">974ebc0c-0865-4ea6-b748-9098dc431587</property>
+  <property name="ti.android.useLegacyWindow" type="bool">true</property>
 </ti:app>
