@@ -53,7 +53,7 @@ function render_list(){
 function refresh(){
 	var checker = Alloy.createCollection('updateChecker'); 
 	var dr_id = Ti.App.Properties.getString('dr_id') || 0;
-	var isUpdate = checker.getCheckerById(0);
+	var isUpdate = checker.getCheckerById(0, dr_id);
 	var last_updated = isUpdate.updated || "";
 	last_update = last_updated;
 	console.log({dr_id: dr_id, last_updated: last_updated, is_doctor: 1});
@@ -65,7 +65,7 @@ function refresh(){
 			var arr = res.data || undefined;
 			console.log(res.last_updated+" res.last_updated");
 			model.saveArray(arr);
-			checker.updateModule(0, "getMessage", res.last_updated);
+			checker.updateModule(0, "getMessage", res.last_updated, dr_id);
 			getPreviousData();
 			render_list();
 		}

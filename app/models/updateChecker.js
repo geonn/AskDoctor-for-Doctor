@@ -2,21 +2,7 @@
 CHECKER CONFIG 
 ID       type Name
 ------------------------------------
-1		getClinicList	 
-2 		notification 
-3		getMessageByRoom
-4 		getDoctorByPanel
-5		getSpecialtylist
-6		getDoctorPanelBySpecialty
-7		getHelplineMessage
-8		getDcotroPanel
-9		getAppointmentByDoctorPanel
-10		categoryUrl
-11		leafletUrl
-12		doctorListUrl
-13		getClinicLocator2
-14		getHealthDataByUser	|| u_id
-15		getPersonalInfoRecords	|| u_id
+0		getMessage	dr_id
 ************************************/
 
 exports.definition = {

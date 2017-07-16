@@ -287,7 +287,8 @@ function refresh(callback, firsttime){
 var refreshing = false;
 var time_offset = COMMON.now();
 function refresh_latest(param){
-	
+	var player = Ti.Media.createSound({url:"/sound/doorbell.wav"});
+	player.play();
 	console.log("refresh_latest "+refreshing);
 	/*if(typeof(param.admin) != "undefined"){
 		Ti.App.Properties.setString('estimate_time', "0");
