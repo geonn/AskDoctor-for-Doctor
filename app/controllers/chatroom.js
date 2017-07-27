@@ -14,6 +14,8 @@ var last_uid;
 var status_text = ["", "Sending", "Sent", "Read"];
 var data;
 var room_id = args.room_id;
+var voice_recorder = Alloy.createWidget('geonn.voicerecorder', {record_callback: saveLocal});
+
 console.log('check here!');
 console.log(args);
 /**
@@ -21,31 +23,38 @@ console.log(args);
  */
 var sending = false;
 function SendMessage(){
-	var model = Alloy.createCollection("conversations");
+	
 	if($.message.value == "" || sending){
 		return;
 	}
 	loading.start();
 	sending = true;
 	$.message.editable = false;
-	console.log(Ti.App.Properties.getString('name'));
+	saveLocal({message: $.message.value, format:"text"});
+}
+
+function saveLocal(param){
+	var model = Alloy.createCollection("conversations");
 	var app_id = Math.random().toString(36).substr(2, 10);
 	var local_save = [{
 		"dr_id": dr_id,
 		"id": app_id,
 	    "sender_id": dr_id,
-	    "message": $.message.value,
+	    "message": param.message,
 	    "created": COMMON.now(),
 	    "is_endUser": 0,
 	    "dr_id": dr_id,
-	    "format": "text",
+	    "format": param.format,
 	    "status": 1,
 	    "u_id": args.u_id,
 	    "sender_name": Ti.App.Properties.getString('name'),
 	}];
 	var id = model.saveArray(local_save);
-	console.log({dr_id: dr_id, message: $.message.value, is_doctor:1, is_endUser:0, u_id: args.u_id, sender_name: Ti.App.Properties.getString('name'), format: "text", sender_id: dr_id, app_id: app_id });
-	API.callByPost({url: "sendMessage", params:{dr_id: dr_id, message: $.message.value, is_doctor:1, is_endUser:0, u_id: args.u_id, sender_name: Ti.App.Properties.getString('name'), format: "text", sender_id: dr_id, app_id: app_id }}, {onload: function(responseText){
+	var api_param = {dr_id: dr_id, message: param.message, is_doctor:1, is_endUser:0, u_id: args.u_id, sender_name: Ti.App.Properties.getString('name'), format: param.format, sender_id: dr_id, app_id: app_id };
+	if(param.format == "voice"){
+		_.extend(api_param, {media: param.format, Filedata: param.filedata});
+	}
+	API.callByPost({url: "sendMessage", params:api_param}, {onload: function(responseText){
 		
 		var res = JSON.parse(responseText);
 		console.log(res);
@@ -55,16 +64,11 @@ function SendMessage(){
 		$.message.blur();
 		loading.finish();
 		console.log("yes!loading finish");
+		refresh_latest();
 		socket.fireEvent("socket:sendMessage", {room_id: room_id});
 		//Ti.App.fireEvent("web:sendMessage", {room_id: room_id});
 		
 	}});
-	
-	//var params = {dr_id: dr_id, to_id: to_id, message: $.message.value, type: "text", room_id: room_id};
-	//var messager = Alloy.createCollection('message');
-	
-	//messager.saveRecord(params);
-	
 }
 
 function navToWebview(e){
@@ -139,7 +143,6 @@ function render_conversation(latest){
 				text: timeFormat(data[i].created)+" "+status_text[data[i].status],
 				textAlign: "right"
 			});
-			view_text_container.add(label_name);
 			if (data[i].format == "link"){
 				var label_message2 = $.UI.create("Label", {
 					classes:['h5', 'wfill', 'hsize','small_padding'],
@@ -147,10 +150,22 @@ function render_conversation(latest){
 					left:15, 
 					text: "Thanks you for contacting our call centre. \nWe would love to hear your thoughts or feedback on how we can improve your experience!\nClick below to start the survey:"
 				});
+				view_text_container.add(label_name);
 				view_text_container.add(label_message2);
+				view_text_container.add(label_message);
+			}else if(data[i].format == "voice"){
+				var player = Alloy.createWidget('dk.napp.audioplayer', {playIcon: "\uf144", pauseIcon: "\uf28c"});
+				console.log(newText);
+				player.setUrl(newText);
+				//download_video(player, newText);
+				var view = $.UI.create("View", {classes:['wfill','hsize','padding']});
+				view.add(player.getView());
+				view_text_container.add(label_name);
+				view_text_container.add(view);
+			}else{
+				view_text_container.add(label_name);
+				view_text_container.add(label_message);
 			}
-			
-			view_text_container.add(label_message);
 			
 			view_text_container.add(label_time);
 			if(data[i].is_endUser){
@@ -225,6 +240,14 @@ function closeRoom(){
 			closeWindow();
 		}
 	});
+}
+
+function switchIcon(e){
+	if(e.source.value != ""){
+		$.enter_icon.right = 10;
+	}else{
+		$.enter_icon.right = -50;
+	}
 }
 
 function getConversationByRoomId(callback){
@@ -370,6 +393,8 @@ function closeWindow(){
 }
 
 function init(){
+	var mic = voice_recorder.getView();
+	$.action_btn.add(mic);
 	Ti.App.fireEvent("web:setRoom", {room_id: args.room_id});
 	Ti.App.fireEvent("conversation:setRoom", {room_id: args.room_id});
 	set_room();

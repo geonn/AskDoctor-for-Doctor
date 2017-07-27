@@ -7,12 +7,13 @@
     	</ScrollView>
     	<View class="wfill vert" bottom="0" height="110" >
     		<Button class="button" onClick="closeRoom" bottom="10" backgroundColor="#00c8a9">End Session</Button>
-    		<View class="wfill hsize" backgroundColor="#20243e">
-    			<TextField class="wfill hsize" left="10" height="40" right="120" bottom="10" id="message" hintText=""></TextField>
-    			<Button class="small_button" height="40" width="60" top="10" right="55" onClick="SendMessage">Send</Button>
-    			<ImageView image="/images/icons/icon_take_photo_nobg.png" top="15" right="30" width="20" ></ImageView>
-    			<ImageView image="/images/icons/icon_take_photo_nobg.png" top="15" right="5" width="20" ></ImageView>
-    		</View>
+    		
+    		<View backgroundColor="#20243e" class="wfill hsize" bottom="0" id='bottom_bar'>
+		    	<TextField id="message" id="message" onChange="switchIcon" font="fontSize: 40" class="small_padding wfill" left="10" bottom="10" right="50" height="40" ></TextField>
+		    	<View id="action_btn" right="0" class="wsize hsize" backgroundColor="#20243e">
+		    		<ImageView id="enter_icon" backgroundColor="#20243e" image="/images/icons/icon_enter.png" top="10" bottom="10" zIndex="3" right="-50" height="30" width="30" onClick="SendMessage"></ImageView>
+		    	</View>
+		    </View>
     	</View>
     </Window>
 </Alloy>

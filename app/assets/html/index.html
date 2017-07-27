@@ -55,7 +55,7 @@
   	  });
   	  
   	  Ti.App.addEventListener("socket:sendMessage", function(ex) {
-      	Ti.App.fireEvent("socket:refresh_chatroom see how many time");
+      	Ti.App.fireEvent("socket:refresh_chatroom see how many time"+ex.room_id);
     	socket.emit('socket:refresh_chatroom', ex.room_id, false);
   	  });
   	  
