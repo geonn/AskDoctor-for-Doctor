@@ -3,7 +3,11 @@
   xmlns:ti="http://ti.appcelerator.org">
   <id>com.plux.pluxForDoctor</id>
   <name>AskDoctor for Doctor</name>
+<<<<<<< HEAD
+  <version>1.0.1.1002</version>
+=======
   <version>1.0.1.1000</version>
+>>>>>>> origin/master
   <publisher>yikonnlau</publisher>
   <url>undefined</url>
   <description>undefined</description>
@@ -12,7 +16,11 @@
   <fullscreen>false</fullscreen>
   <navbar-hidden>false</navbar-hidden>
   <analytics>true</analytics>
+<<<<<<< HEAD
+  <guid>41556deb-7823-4bc2-9111-c30f6cb5eef8</guid>
+=======
   <guid>cbdd9249-c246-4a8d-9bbb-1f344d3a1ef7</guid>
+>>>>>>> origin/master
   <property name="ti.ui.defaultunit" type="string">dp</property>
   <property name="run-on-main-thread" type="bool">true</property>
   <ios>
@@ -98,6 +106,25 @@
     <plugin version="1.0">ti.alloy</plugin>
     <plugin>hyperloop</plugin>
   </plugins>
+<<<<<<< HEAD
+  <property name="appc-app-id" type="string">596b724f7316d873002b887a</property>
+  <property name="acs-authbase-url-development" type="string">https://secure-identity.cloud.appcelerator.com</property>
+  <property name="acs-base-url-development" type="string">https://api.cloud.appcelerator.com</property>
+  <property name="acs-oauth-secret-development" type="string">tPQvCwkkMHxAwY8JGzwuHSFwmdFWOmyO</property>
+  <property name="acs-oauth-key-development" type="string">R0nxHefKrxLETcyHokjbw8UPnntKqKnK</property>
+  <property name="acs-api-key-development" type="string">Yn8qCUyi8nUlVmWtf4hnqsCkcXgG3mV1</property>
+  <property name="acs-username-development" type="string">appc_app_user_dev</property>
+  <property name="acs-password-development" type="string">u9X6HJR9cvK1xpiuZx</property>
+  <property name="acs-authbase-url-production" type="string">https://secure-identity.cloud.appcelerator.com</property>
+  <property name="acs-base-url-production" type="string">https://api.cloud.appcelerator.com</property>
+  <property name="acs-oauth-secret-production" type="string">WVEUEju9Js2GkxuQGkyDDNHgCee0ucsj</property>
+  <property name="acs-oauth-key-production" type="string">wkBaLquO1OFQlGG0LwRWoaFbWS0dXOAp</property>
+  <property name="acs-api-key-production" type="string">WNvLlXO3prSATjkneRTUkVgoFdOy8Ei7</property>
+  <property name="acs-username-production" type="string">appc_app_user</property>
+  <property name="acs-password-production" type="string">72vCs0Y8Wo0SvBVKMS</property>
+  <property name="appc-org-id" type="string">100016072</property>
+  <property name="appc-creator-user-id" type="string">974ebc0c-0865-4ea6-b748-9098dc431587</property>
+=======
   <property name="appc-app-id" type="string">596781dac668cf0b24ab0ca8</property>
   <property name="acs-authbase-url-development" type="string">https://secure-identity.cloud.appcelerator.com</property>
   <property name="acs-base-url-development" type="string">https://api.cloud.appcelerator.com</property>
@@ -115,5 +142,6 @@
   <property name="acs-password-production" type="string">Q3JyvSr9YWGRmyDeDA</property>
   <property name="appc-org-id" type="string">100026224</property>
   <property name="appc-creator-user-id" type="string">37d3be16-02d7-4f77-9c31-7aadd8bc5011</property>
+>>>>>>> origin/master
   <property name="ti.android.useLegacyWindow" type="bool">true</property>
 </ti:app>

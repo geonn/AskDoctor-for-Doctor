@@ -48,16 +48,30 @@ function getNotificationNumber(payload){
 function receivePush(e) { 
 	console.log(e);
 	console.log('receive push');
-	if(e.data.target == "chatroom"){
-		var params = {u_id:e.data.u_id, dr_id:e.data.dr_id, room_id:e.data.room_id};
-		
-		if(redirect){
-			Alloy.Globals.Navigator.open("chatroom", params);
-		}else{
-			Ti.App.fireEvent("home:refresh");
-			Ti.App.fireEvent("conversation:refresh");
+	if(OS_IOS){
+		if(e.data.target == "chatroom"){
+			var params = {u_id:e.data.u_id, dr_id:e.data.dr_id, room_id:e.data.room_id};
+			
+			if(redirect){
+				Alloy.Globals.Navigator.open("chatroom", params);
+			}else{
+				Ti.App.fireEvent("home:refresh");
+				Ti.App.fireEvent("conversation:refresh");
+			}
+		}
+	}else{
+		if(e.target == "chatroom"){
+			var params = {u_id:e.u_id, dr_id:e.dr_id, room_id:e.room_id};
+			
+			if(redirect){
+				Alloy.Globals.Navigator.open("chatroom", params);
+			}else{
+				Ti.App.fireEvent("home:refresh");
+				Ti.App.fireEvent("conversation:refresh");
+			}
 		}
 	}
+	
 	
 	//Action after receiving push message
 	 
