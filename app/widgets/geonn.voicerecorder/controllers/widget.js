@@ -1,6 +1,7 @@
 var args = arguments[0] || {};
 var timer = require(WPATH("timer"));
 var audioRecorder;
+var cancel_record = false;
 if(OS_ANDROID){
 	audioRecorder = require("titutorial.audiorecorder");	
 }else{
@@ -34,11 +35,11 @@ function startRecording(){
 					var audioDir = Titanium.Filesystem.getFile(Titanium.Filesystem.externalStorageDirectory, "plux");
 					var audioFile = Ti.Filesystem.getFile(audioDir.resolve(), e.fileName);
 					console.log("audioFile.nativePath = " + audioFile.nativePath);
-					audioPlayer.url = audioFile.nativePath;
+					//audioPlayer.url = audioFile.nativePath;
 					if(!cancel_record){
 						args.record_callback({message: "", format:"voice", filedata: audioFile.read()});
 					}
-					audioPlayer.start();
+					//audioPlayer.start();
 				},
 				error : function(d) {
 					alert("error => " + d.message);
