@@ -61,6 +61,7 @@ function init(){
 	var user = require("user"); 
 	user.checkAuth(_callback);
 	PUSH.setInApp();
+	
 }
 
 var loadingView;

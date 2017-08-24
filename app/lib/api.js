@@ -73,7 +73,12 @@ exports.callByPost = function(e, handler){
 	if(deviceToken != ""){ 
 		var url = "http://"+API_DOMAIN+"/api/"+e.url+"?user="+USER+"&key="+KEY;
 		console.log(url);
-		var _result = contactServerByPost(url, e.params || {});   
+		console.log(e.type+" e.type");
+		if(e.type == "voice"){
+			var _result = contactServerByPostVideo(url, e.params || {});  
+		}else{
+			var _result = contactServerByPost(url, e.params || {});  
+		}
 		_result.onload = function(ex) {  
 			console.log(this.responseText);
 			try{
@@ -182,6 +187,21 @@ function contactServerByPost(url,records) {
 	client.send(records);
 	return client;
 };
+
+function contactServerByPostVideo(url,params) { 
+	var client = Ti.Network.createHTTPClient({
+		timeout : 50000
+	});
+	 
+	//client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');  
+	client.open("POST", url);
+	client.onsendstream = function(e) {
+	    console.log( Math.floor(e.progress * 100) + "%");
+	};
+	client.send(params); 
+	return client;
+};
+
 
 function contactServerByPostImage(url, records) { 
 	var client = Ti.Network.createHTTPClient({

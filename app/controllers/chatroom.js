@@ -14,7 +14,7 @@ var last_uid;
 var status_text = ["", "Sending", "Sent", "Read"];
 var data;
 var room_id = args.room_id;
-var voice_recorder = Alloy.createWidget('geonn.voicerecorder', {record_callback: saveLocal});
+var voice_recorder = Alloy.createWidget('geonn.voicerecorder', {record_callback: saveLocal, loadingStart: loadingStart});
 
 console.log('check here!');
 console.log(args);
@@ -54,7 +54,8 @@ function saveLocal(param){
 	if(param.format == "voice"){
 		_.extend(api_param, {media: param.format, Filedata: param.filedata});
 	}
-	API.callByPost({url: "sendMessage", params:api_param}, {onload: function(responseText){
+	console.log(api_param);
+	API.callByPost({url: "sendMessage", type: param.format, params:api_param}, {onload: function(responseText){
 		
 		var res = JSON.parse(responseText);
 		console.log(res);
@@ -405,6 +406,10 @@ function init(){
 	console.log(room_id+" room id");
 	refresh(getPreviousData, true);
 	
+}
+
+function loadingStart(){
+	loading.start();
 }
 
 function set_room(){

@@ -5,19 +5,18 @@
  */
 
 var args = arguments[0] || {};
-
+var audioPlayer = Ti.Media.createSound();
+var timer;
 // save off current idle timer state
 Ti.App.idleTimerDisabled = true;
 
-var idleTimer = Ti.App.idleTimerDisabled,
-    audioPlayer = Ti.Media.createSound(),
-    timer,
-    sliderTouched = false,
-    sliderIsPausingPlayback = false,
-    timerIsActive = false,
-    totalDisplayDuration,
-    playIcon,
-    pauseIcon;
+var idleTimer = Ti.App.idleTimerDisabled;
+var sliderTouched = false;
+var sliderIsPausingPlayback = false;
+var timerIsActive = false;
+var totalDisplayDuration;
+var playIcon;
+var pauseIcon;
 
 // parsing styles from TSS
 _.each(args.styles, function(value, property) {
@@ -30,10 +29,10 @@ delete args.styles;
 
 // parse icon arguments
 if(args.playIcon){
-	playIcon = args.playIcon;
+	playIcon = WPATH("/images/play_button.png");
 }
 if(args.pauseIcon){
-	pauseIcon = args.pauseIcon;
+	pauseIcon = WPATH("/images/pause_button.png");
 }
 
 $.scrubBar.thumbImage = "/images/player_indicator.png";
@@ -76,9 +75,10 @@ function onPlayStopBtnClicked() {
 
 		stopTimer();
 		console.log("why cant change to play");
-		$.playStopBtn.text = playIcon;
+		$.playStopBtn.image = playIcon;
 
 	} else {
+		Titanium.Media.setAudioSessionCategory(Ti.Media.AUDIO_SESSION_MODE_PLAYBACK);
 		audioPlayer.play();
 
 		// set the max value of the slider
@@ -88,7 +88,7 @@ function onPlayStopBtnClicked() {
 		startTimer();
 
 		// update the icon
-		$.playStopBtn.text = pauseIcon;
+		$.playStopBtn.image = pauseIcon;
 	}
 }
 
@@ -110,8 +110,6 @@ function getDuration() {
  */
 function prettifyTime(time) {
 	console.log(time+" time");
-	if(time <= 0)
-		stopTimer();
 	time = Math.floor(time);
 	// find minutes and seconds
 	var minutes = Math.floor(time / 60);
@@ -138,6 +136,9 @@ function startTimer() {
 console.log(totalDisplayDuration+" totalDisplayDuration");
 		timer = setInterval(function() {
 			var currentTime = Math.round(audioPlayer.time);
+			console.log(getDuration()+" "+audioPlayer.time);
+			if(OS_IOS && audioPlayer.time <= 0)
+				stopTimer();
 			$.scrubBar.value = currentTime;
 
 			$.time.text = prettifyTime(currentTime / 1000) + " / " + totalDisplayDuration;
@@ -148,14 +149,16 @@ console.log(totalDisplayDuration+" totalDisplayDuration");
 }
 
 function stopTimer(e) {
-	console.log(e);
+	console.log(timer);
+	console.log("stop timer");
 	clearInterval(timer);
 	timerIsActive = false;
-	$.playStopBtn.text = playIcon;
+	$.playStopBtn.image = playIcon;
 }
 
 if (OS_IOS) {
 	// iOS only events
+	
 	audioPlayer.addEventListener('interrupted', function(e) {
 		//Ti.API.debug('[AudioPlayerWidget]' + e.type);
 		stopTimer();
@@ -179,10 +182,35 @@ if (OS_IOS) {
 			stopTimer();
 		}
 	});
+	
+	audioPlayer.addEventListener('complete', function(e) {
+		stopTimer();
+	});
 }
 
 exports.setUrl = function(url) {
-	// we instatiate a new sound
+	var filename = url.split('/').pop();
+	var file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, filename);	
+	if(file.exists()){
+		set_url(file.nativePath);
+	}else{
+		var xhr = Titanium.Network.createHTTPClient({
+			onload: function() {
+				// first, grab a "handle" to the file where you'll store the downloaded data
+				var f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, filename);
+				f.write(this.responseData); // write to the file
+				Ti.App.fireEvent('graphic_downloaded', {filepath: f.nativePath});
+				set_url(f.nativePath);
+			},
+			timeout: 10000
+		});
+		xhr.open('GET', url);
+		xhr.send();
+	}
+};
+
+function set_url(url){
+	console.log(url+" here url");
 	try{
 		audioPlayer = Ti.Media.createSound({
 			url : url,
@@ -191,13 +219,14 @@ exports.setUrl = function(url) {
 	}catch(e){
 		console.log(e.message);
 	}
-
+	audioPlayer.play();
+	audioPlayer.stop();
 	// new sound - update the display
 	updateTimeLabel();
 	
 	// update the icon
-	$.playStopBtn.text = playIcon;
-};
+	$.playStopBtn.image = playIcon;
+}
 
 exports.updatePlayIcon = function(icon) {
 	playIcon = icon;
@@ -206,8 +235,6 @@ exports.updatePlayIcon = function(icon) {
 exports.updatePauseIcon = function(icon) {
 	pauseIcon = icon;
 };
-
-audioPlayer.addEventListener("Complete", stopTimer);
 
 // call dispose when done
 exports.dispose = function() {

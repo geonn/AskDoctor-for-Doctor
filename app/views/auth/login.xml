@@ -1,12 +1,12 @@
 <Alloy>
 	<NavigationWindow platform="ios" id="navWin">
 		<Window title="Ask Doctor" color="#ffffff" id="win">
-			<View class="wfill hfill vert">
+			<ScrollView class="wfill hfill vert" contentHeight="Ti.UI.SIZE" contentWidth="Ti.UI.FILL">
 				<ImageView image="/images/logo_text.png" top="80" width="50%" />
 				<TextField id="username" hintText="Email" top="80"></TextField>
 				<TextField id="password" hintText="Password" passwordMask="true"></TextField>
-				<Button onClick="do_login" class="button" title="Sign In"></Button>
-			</View>
+				<Button onClick="do_login" bottom="20" class="button" title="Sign In"></Button>
+			</ScrollView>
 		</Window>
 	</NavigationWindow>
 	<Window title="Ask Doctor" color="#ffffff" id="win" platform="android">
