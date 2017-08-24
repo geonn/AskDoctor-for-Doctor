@@ -90,7 +90,7 @@ function popMore(){
 
 function init(){
 	var device_token = Ti.App.Properties.getString('deviceToken');
-	var u_id = Ti.App.Properties.getString('dr_id', arr.doctor_id);
+	var u_id = Ti.App.Properties.getString('dr_id');
 	API.callByPost({url: "updateDoctorDeviceToken", params: {u_id: u_id, device_id: device_token}}, {onload: function(res){console.log(res);}});
 	socket.addEventListener("doctor:refresh_patient_list", refresh);
 	socket.addEventListener("controller:getDoctorList", onDuty);
@@ -124,7 +124,7 @@ function update_online_status(e){
 		Ti.App.fireEvent("socket:leave_special_room", {name: name, dr_id: dr_id});
 	}
 	var device_token = Ti.App.Properties.getString('deviceToken');
-	var u_id = Ti.App.Properties.getString('dr_id', arr.doctor_id);
+	var u_id = Ti.App.Properties.getString('dr_id');
 	API.callByPost({url: "updateDoctorDeviceToken", params: {u_id: u_id, device_id: device_token}}, {onload: function(res){console.log(res);}});
 }
 
