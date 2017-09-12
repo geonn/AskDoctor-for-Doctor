@@ -35,7 +35,13 @@ function render_list(){
 		var view_left = $.UI.create("View", {classes:['hsize','padding','vert'], width: "60%"});
 		var label_user = $.UI.create("Label", {classes:['wfill','hsize','h5'], text: data[i].patient_name});
 		var label_last_user = $.UI.create("Label", {classes:['wfill','hsize','h5'], text: data[i].sender_name});
-		var label_last_message = $.UI.create("Label", {classes:['wfill','hsize','h6'], text: data[i].message});
+		var message = data[i].message;
+		if (message.substr(0,4)=="http") {
+			message = "voice record";
+		}else{
+			message = data[i].message;
+		};
+		var label_last_message = $.UI.create("Label", {classes:['wfill','hsize','h6'], text: message});
 		var view_right = $.UI.create("View", {classes:['wfill','hsize','padding']});
 		var label_time = $.UI.create("Label", {classes:['wsize','hsize','h6'], textAlign: "right", right:0, text: data[i].created});
 		

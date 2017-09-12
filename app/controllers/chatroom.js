@@ -23,7 +23,6 @@ console.log(args);
  */
 var sending = false;
 function SendMessage(){
-	
 	if($.message.value == "" || sending){
 		return;
 	}
@@ -393,7 +392,7 @@ function closeWindow(){
 	$.win.close();
 }
 
-function init(){
+function second_init(){
 	var mic = voice_recorder.getView();
 	$.action_btn.add(mic);
 	Ti.App.fireEvent("web:setRoom", {room_id: args.room_id});
@@ -405,7 +404,6 @@ function init(){
 	}
 	console.log(room_id+" room id");
 	refresh(getPreviousData, true);
-	
 }
 
 function loadingStart(){
@@ -416,6 +414,46 @@ function set_room(){
 	room_set = true;
 	socket.addEventListener("socket:refresh_chatroom", refresh_latest);
 	socket.event_onoff("socket:message_alert", false);
+}
+
+function checkingInternalPermission(){
+	if(Titanium.Filesystem.hasStoragePermissions()){
+  		second_init();       
+ 	}else{
+ 		setTimeout(function(){
+	  		Titanium.Filesystem.requestStoragePermissions(function(e) {
+	       		if (e.success) {
+	     			second_init();       
+	       		} else {
+	     			common.createAlert("Warning","You don't have file storage permission!!!\nYou can go to setting enabled the permission.",function(e){
+	      				closeWindow();
+	    	 		});
+	       		}
+	  	 	});     
+	  	},1000);   
+	}
+}
+
+function init(){
+	if (OS_ANDROID) {
+		if (Ti.Android.hasPermission("android.permission.RECORD_AUDIO")) {
+			checkingInternalPermission();
+		}else{
+			setTimeout(function(){
+				Ti.Android.requestPermissions("android.permission.RECORD_AUDIO",function(e){
+					if(e.success){
+						checkingInternalPermission();
+					}else{
+						COMMON.createAlert("Warning","You don't have voice recorder permission!!!",function(e){
+							closeWindow();
+						});
+					}
+				});
+			},1000);
+		};
+	}else{
+		second_init();
+	};
 }
 
 init();

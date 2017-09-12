@@ -3,8 +3,8 @@
     <View class='hsize wfill vert' top="20">
     	<WebView zIndex="100" url="/html/index.html" id="socket" class="wfill" height="0"></WebView>
     	<View class="wfill hsize padding horz">
-    		<ImageView image="/images/icons/more_btn.png" width="40" right="10" onClick="popMore"></ImageView>
-    		<Label class="hsize h3" width="60%" id="doctor_name"></Label>
+    		<ImageView image="/images/icons/more_btn.png" width="40" onClick="popMore"></ImageView>
+    		<Label class="hsize h3" left="10" width="60%" id="doctor_name"></Label>
     		<View class="wfill hsize">
     			<Switch right="0" class="wsize hsize" id="onDuty" onChange="update_online_status" value="true"/>
     		</View>

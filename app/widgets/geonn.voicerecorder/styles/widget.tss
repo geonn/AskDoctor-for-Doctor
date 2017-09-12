@@ -1,7 +1,7 @@
 "Label":{
 	width: Titanium.UI.SIZE,
 	height: Titanium.UI.SIZE,
-	color: "#ffffff"
+	color: "#606060"
 },
 
 '.vert':{
