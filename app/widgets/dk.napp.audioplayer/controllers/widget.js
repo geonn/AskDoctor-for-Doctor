@@ -135,11 +135,15 @@ function startTimer() {
 		timer = setInterval(function() {
 			var currentTime = Math.round(audioPlayer.time);
 			console.log(Math.ceil(audioPlayer.time/1000)+" >= "+Math.floor(getDuration()/1000));
-			if(Math.ceil(audioPlayer.time/1000) >= Math.floor(getDuration()/1000)){
-				stopTimer();
-			}
+			// if(Math.ceil(audioPlayer.time/1000) >= Math.floor(getDuration()/1000)){
+				// stopTimer();
+			// }
 			$.scrubBar.value = currentTime;
 			$.time.text = prettifyTime(currentTime / 1000) + " / " + totalDisplayDuration;
+			if (currentTime == 0) {
+				console.log("lalala");
+				stopTimer();
+			};
 		}, 500);
 	}
 	timerIsActive = true;
