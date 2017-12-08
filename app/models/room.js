@@ -113,18 +113,21 @@ exports.definition = {
                 var count = 0;
                  /**
                  * debug use
-                 
+                 **/
                 var row_count = res.fieldCount;
-               /** for(var a = 0; a < row_count; a++){
+                for(var a = 0; a < row_count; a++){
             		 console.log(a+":"+res.fieldName(a)+":"+res.field(a));
             	 }
-            	*/
+            	
                 var eval_column = "";
             	for (var i=0; i < names.length; i++) {
 					eval_column = eval_column+names[i]+": res.fieldByName('"+names[i]+"'),";
 				};
                 while (res.isValidRow()){
-                	eval("arr[count] = {"+eval_column+"}");
+                	console.log(typeof arr);
+                	if(typeof arr != "undefined"){
+                		eval("arr[count] = {"+eval_column+"}");
+                	}
                 	res.next();
 					count++;
                 }
