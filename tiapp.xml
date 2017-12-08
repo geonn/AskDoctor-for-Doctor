@@ -41,8 +41,8 @@
         <string>UIStatusBarStyleDefault</string>
         <key>NSLocationAlwaysUsageDescription</key>
         <string>
-                   	We will use your location to find out the nearest patient for you.
-                </string>
+           	We will use your location to find out the nearest patient for you.
+        </string>
         <key>NSMicrophoneUsageDescription</key>
         <string>Can we use your microphone for sending voice message?</string>
         <key>NSPhotoLibraryUsageDescription</key>

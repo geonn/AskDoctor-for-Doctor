@@ -78,7 +78,6 @@ function onPlayStopBtnClicked() {
 		$.playStopBtn.image = playIcon;
 
 	} else {
-		Titanium.Media.setAudioSessionCategory(Ti.Media.AUDIO_SESSION_MODE_PLAYBACK);
 		audioPlayer.play();
 
 		// set the max value of the slider
@@ -97,10 +96,10 @@ function onPlayStopBtnClicked() {
  */
 function getDuration() {
 	if (OS_IOS) {
-		console.log('should get this '+Math.ceil(audioPlayer.duration * 1000));
-		return Math.ceil(audioPlayer.duration * 1000);
+		console.log('should get this '+Math.floor(audioPlayer.duration * 1000));
+		return Math.floor(audioPlayer.duration * 1000);
 	}
-	return Math.ceil(audioPlayer.duration);
+	return Math.floor(audioPlayer.duration);
 }
 
 /**
@@ -133,18 +132,20 @@ function startTimer() {
 	if (!timerIsActive) {
 		// calc the duration - only once started
 		totalDisplayDuration = prettifyTime(getDuration() / 1000);
-console.log(totalDisplayDuration+" totalDisplayDuration");
 		timer = setInterval(function() {
 			var currentTime = Math.round(audioPlayer.time);
-			console.log(getDuration()+" "+audioPlayer.time);
-			if(OS_IOS && audioPlayer.time <= 0)
-				stopTimer();
+			console.log(Math.ceil(audioPlayer.time/1000)+" >= "+Math.floor(getDuration()/1000));
+			// if(Math.ceil(audioPlayer.time/1000) >= Math.floor(getDuration()/1000)){
+				// stopTimer();
+			// }
 			$.scrubBar.value = currentTime;
-
 			$.time.text = prettifyTime(currentTime / 1000) + " / " + totalDisplayDuration;
+			if (currentTime == 0) {
+				console.log("lalala");
+				stopTimer();
+			};
 		}, 500);
 	}
-
 	timerIsActive = true;
 }
 
@@ -158,7 +159,6 @@ function stopTimer(e) {
 
 if (OS_IOS) {
 	// iOS only events
-	
 	audioPlayer.addEventListener('interrupted', function(e) {
 		//Ti.API.debug('[AudioPlayerWidget]' + e.type);
 		stopTimer();
@@ -181,10 +181,6 @@ if (OS_IOS) {
 		} else if (e.state == Ti.Media.Sound.STATE_STOPPED) {
 			stopTimer();
 		}
-	});
-	
-	audioPlayer.addEventListener('complete', function(e) {
-		stopTimer();
 	});
 }
 
