@@ -10,7 +10,8 @@
     		</View>
     	</View>
     	<TableView onClick="navTo" id="tbl">
-    		
+    		<SearchBar backgroundColor="transparent" platform="ios"></SearchBar>
+    		<SearchView backgroundColor="transparent" platform="android"></SearchView>
     	</TableView>
     </View>
     </Window>

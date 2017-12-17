@@ -101,7 +101,7 @@ exports.definition = {
 	                names.push(k);
 	            }
 				var dr_id = Ti.App.Properties.getString('dr_id'); 
-                var sql = "SELECT * from room where dr_id = ? AND status = 2  order by created desc"; 
+                var sql = "SELECT * from room where dr_id = ? order by created AND status desc"; 
                 
                 db = Ti.Database.open(collection.config.adapter.db_name);
                 if(Ti.Platform.osname != "android"){
