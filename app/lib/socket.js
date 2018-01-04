@@ -2,7 +2,9 @@ var function_array = [];
 var function_onoff_array = [];
 
 exports.fireEvent = function(name, params){
-	eval("Ti.App.fireEvent('"+name+"', params)");
+	console.log(name+"fire event");
+	console.log(params);
+	Ti.App.fireEvent(name, params);
 };
 
 exports.event_onoff = function(name, bool){
@@ -10,7 +12,7 @@ exports.event_onoff = function(name, bool){
 };
 
 exports.addEventListener = function(name, callback){
-	console.log(name+" addeventlistener");
+	console.log(name+" add socket eventlistener");
 	function_array[name] = callback;
 	function_onoff_array[name] = true;
 };

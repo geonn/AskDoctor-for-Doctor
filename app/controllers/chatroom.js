@@ -72,7 +72,7 @@ function saveLocal(param){
 }
 
 function navToWebview(e){
-	var url = parent({name:"url"}, e.source);
+	var url = e.source.url;
 	console.log(url);
 	var win = Alloy.createController("webview", {url: url}).getView();
 	win.open();
@@ -111,7 +111,8 @@ function render_conversation(latest){
 				classes:  ['hsize', 'vert', 'box','rounded'],
 				top: 2,
 				width: "75%",
-				url: data[i].message
+				url: data[i].message,
+				bubbleParent: false
 			});
 			var label_name = $.UI.create("label",{
 				classes: ['h6','wfill', 'hsize', 'bold', 'small_padding'],
@@ -198,8 +199,8 @@ function render_conversation(latest){
 		
 		view_container.add(view_text_container);
 		view_container.addEventListener("longpress", function(e){
-			var m_id = parent({name: "m_id"}, e.source);
-			var message_box = parent({name: "m_id", value: m_id}, e.source);
+			var m_id = e.source.m_id;
+			var message_box = e.source;
 			var dialog = Ti.UI.createAlertDialog({
 			    cancel: 1,
 			    buttonNames: ['Confirm', 'Cancel'],
@@ -402,7 +403,7 @@ function second_init(){
 	if(!Titanium.Network.online){
 		COMMON.createAlert("Alert", "There is no internet connection.", closeWindow);
 	}
-	console.log(room_id+" room id");
+	console.log(room_id+" set room id");
 	refresh(getPreviousData, true);
 }
 

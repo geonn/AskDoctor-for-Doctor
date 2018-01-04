@@ -79,30 +79,23 @@ function receivePush(e) {
 }
 
 function deviceTokenSuccess(ex) {
+	console.log("deviceTokenSuccess");
     deviceToken = ex.deviceToken;
-    Cloud.Users.login({
-	    login: 'askdoctor',
-	    password: '123456'
-	}, function (e) {
-		if (e.success) {
-			  
-			Cloud.PushNotifications.subscribe({
-			    channel: 'general',
-			    type:Ti.Platform.name == 'android' ? 'android' : 'ios', 
-			    device_token: deviceToken
-			}, function (e) { 
-				console.log(e);
-			    if (e.success  ) { 
-			    	/** User device token**/
-			    	console.log(deviceToken+"push");
-	         		Ti.App.Properties.setString('deviceToken', deviceToken); 
-					API.updateNotificationToken();
-			    } else {
-			    	registerPush();
-			    }
-			});
-	    } else {
-	    	 
+    
+	Cloud.PushNotifications.subscribeToken({
+	    channel: 'general',
+	    type:Ti.Platform.name == 'android' ? 'android' : 'ios', 
+	    device_token: deviceToken
+	}, function (sub) { 
+		console.log(sub);
+	    if (sub.success) { 
+	    	/** User device token**/
+	    	console.log(deviceToken+" push");
+     		Ti.App.Properties.setString('deviceToken', deviceToken); 
+			API.updateNotificationToken();
+			var device_token = Ti.App.Properties.getString('deviceToken');
+			var u_id = Ti.App.Properties.getString('dr_id');
+			API.callByPost({url: "updateDoctorDeviceToken", params: {u_id: u_id, device_id: device_token}}, {onload: function(res){console.log(res);}});
 	    }
 	});
 }

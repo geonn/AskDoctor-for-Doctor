@@ -119,17 +119,15 @@ exports.definition = {
             		 console.log(a+":"+res.fieldName(a)+":"+res.field(a));
             	 }
             	
-                var eval_column = "";
-            	for (var i=0; i < names.length; i++) {
-					eval_column = eval_column+names[i]+": res.fieldByName('"+names[i]+"'),";
-				};
                 while (res.isValidRow()){
-                	console.log(typeof arr);
-                	if(typeof arr != "undefined"){
-                		eval("arr[count] = {"+eval_column+"}");
-                	}
+                	var row_data = {};
+	            	for (var i=0; i < names.length; i++) {
+	            		row_data[ names[i] ] = res.fieldByName(names[i]);
+					};
+                	arr[count] = row_data;
                 	res.next();
 					count++;
+                console.log(row_data)
                 }
 			 
 				res.close();
@@ -175,44 +173,38 @@ exports.definition = {
 	            db.close();
 	            collection.trigger('sync');
 			},
-			saveArray : function(arr){ // 4th version of save array
+			saveArray : function(arr){ // 5.1th version of save array by onn
 				var collection = this;
 				var columns = collection.config.columns;
 				var names = [];
 				for (var k in columns) {
 	                names.push(k);
 	            }
-	            console.log(arr);
                 db = Ti.Database.open(collection.config.adapter.db_name);
                 if(Ti.Platform.osname != "android"){
                 	db.file.setRemoteBackup(false);
                 }
+                console.log(arr.length+" number of arr to save into "+ collection.config.adapter.db_name);
                 db.execute("BEGIN");
                 arr.forEach(function(entry) {
                 	var keys = [];
-                	var questionmark = [];
                 	var eval_values = [];
-                	var update_questionmark = [];
-                	var update_value = [];
                 	for(var k in entry){
 	                	if (entry.hasOwnProperty(k)){
 	                		_.find(names, function(name){
 	                			if(name == k){
 	                				keys.push(k);
-			                		questionmark.push("?");
-			                		eval_values.push("entry."+k);
-			                		update_questionmark.push(k+"=?");
+	                				entry[k] = (entry[k] == null)?"":entry[k];
+			                		eval_values.push("\""+entry[k]+"\"");
 	                			}
 	                		});
 	                	}
                 	}
-                	var without_pk_list = _.rest(update_questionmark);
-	                var without_pk_value = _.rest(eval_values);
-	                var sql_query =  "INSERT OR REPLACE INTO "+collection.config.adapter.collection_name+" ("+keys.join()+") VALUES ("+questionmark.join()+")";
-	                eval("db.execute(sql_query, "+eval_values.join()+")");
+		            var sql_query =  "INSERT OR REPLACE INTO "+collection.config.adapter.collection_name+" ("+keys.join()+") VALUES ("+eval_values.join()+")";
+		            console.log(sql_query);
+		            db.execute(sql_query);
 				});
 				db.execute("COMMIT");
-				//console.log(db.getRowsAffected()+" affected row");
 	            db.close();
 	            collection.trigger('sync');
 			},

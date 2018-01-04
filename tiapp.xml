@@ -2,10 +2,10 @@
 <ti:app xmlns:ti="http://ti.appcelerator.org">
     <id>com.plux.pluxForDoctor</id>
     <name>AskDoctor for Doctor</name>
-    <version>1.0.2.1001</version>
+    <version>1.0.5.1001</version>
     <publisher>yikonnlau</publisher>
     <url>undefined</url>
-    <description>undefined</description>
+    <description>askdoctor is a app for ask question to doctor</description>
     <copyright>2017 by yikonnlau</copyright>
     <icon>appicon.png</icon>
     <fullscreen>false</fullscreen>
@@ -38,12 +38,26 @@
                 <false/>
                 <key>UIStatusBarStyle</key>
                 <string>UIStatusBarStyleDefault</string>
+                <key>NSAppleMusicUsageDescription</key>
+                <string>Play Music when need</string>
                 <key>NSLocationAlwaysUsageDescription</key>
                 <string>
-           	We will use your location to find out the nearest patient for you.
-        </string>
+		           	We will use your location to find out the nearest patient for you.
+		        </string>
+                <key>NSLocationWhenInUseUsageDescription</key>
+                <string>
+		           	We will use your location to find out the nearest patient for you.
+		        </string>
+                <key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+                <string>
+		           	We will use your location to find out the nearest patient for you.
+		        </string>
                 <key>NSMicrophoneUsageDescription</key>
                 <string>Can we use your microphone for sending voice message?</string>
+                <key>NSCameraUsageDescription</key>
+                <string>
+                    Take photo and attach it in the chatroom.
+                </string>
                 <key>NSPhotoLibraryUsageDescription</key>
                 <string>
                     Attach photo in the chatroom.
@@ -100,7 +114,7 @@
         <target device="iphone">true</target>
         <target device="mobileweb">false</target>
     </deployment-targets>
-    <sdk-version>6.3.0.GA</sdk-version>
+    <sdk-version>6.2.2.GA</sdk-version>
     <plugins>
         <plugin version="1.0">ti.alloy</plugin>
         <plugin>hyperloop</plugin>

@@ -71,16 +71,18 @@ function loadingViewFinish(){
 	loadingView.finish(function(){
 		console.log("loadingview_finish!");
 		Alloy.Globals.Navigator.navGroup.open({navBarHidden: true, fullscreen: false});
-		Ti.App.fireEvent("home:init");
+		Ti.App.fireEvent("home:refresh");
 	});
 }
 Ti.App.addEventListener('app:loadingViewFinish', loadingViewFinish);
 Ti.App.addEventListener('app:_callback', _callback);
 function _callback(){
-	loadingView = Alloy.createController("loader");
+	/*loadingView = Alloy.createController("loader");
 	console.log("callback from login");
 	loadingView.getView().open();
-	loadingView.start();
+	loadingView.start();*/
+	Alloy.Globals.Navigator.navGroup.open({navBarHidden: true, fullscreen: false});
+	Ti.App.fireEvent("home:refresh");
 }
 
 init();

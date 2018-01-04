@@ -1,6 +1,6 @@
 <Alloy>
 	<Window id="win" title="Home">
-		<ScrollView class="wfill hfill" contentHeight="Ti.UI.SIZE" contentWidth="Ti.UI.FILL">
+		<ScrollView class="wfill hfill" contentHeight="Ti.UI.FILL" contentWidth="Ti.UI.FILL">
 	    	<ScrollView class='hfill wfill vert conthsize contwfill' bottom="110" top="10" id="chatroom">
 	    		<View id="inner_area" class="wfill hsize vert">
 	    			

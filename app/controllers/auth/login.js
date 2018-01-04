@@ -7,14 +7,14 @@ function do_signup(){
 	  	win.open(); //{fullscreen:false, navBarHidden: false}
 	}else{
 		Alloy.Globals.navWin.openWindow(win,{animated:true});  
-	} 
+	}
 }
 
 function onload(responseText){
 	var result = JSON.parse(responseText); 
 	console.log(result.status);
 	if(result.status == "error"){
-		COMMON.createAlert("Error", result.data[0]);
+		COMMON.createAlert("Error", result.data);
 		loading.finish();
 		return false;
 	}else{

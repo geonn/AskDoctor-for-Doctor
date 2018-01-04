@@ -73,7 +73,7 @@ exports.callByPost = function(e, handler){
 	if(deviceToken != ""){ 
 		var url = "http://"+API_DOMAIN+"/api/"+e.url+"?user="+USER+"&key="+KEY;
 		console.log(url);
-		console.log(e.type+" e.type");
+		console.log(e.params);
 		if(e.type == "voice"){
 			var _result = contactServerByPostVideo(url, e.params || {});  
 		}else{
@@ -141,20 +141,9 @@ exports.callByPostImage = function(e, onload, onerror) {
 
 // update user device token
 exports.updateNotificationToken = function(e){
-	
-	var deviceToken = Ti.App.Properties.getString('deviceToken');
-	if(deviceToken != ""){ 
-		var records = {};
-		records['u_id'] =  Ti.App.Properties.getString('dr_id');
-		records['device_id'] =  deviceToken;
-		var url = "http://"+API_DOMAIN+"/api/updateDoctorDeviceToken?user="+USER+"&key="+KEY;
-		var _result = contactServerByPost(url,records);   
-		_result.onload = function(e) {  
-		};
-		
-		_result.onerror = function(e) { 
-		};
-	}
+	var device_token = Ti.App.Properties.getString('deviceToken');
+	var u_id = Ti.App.Properties.getString('dr_id');
+	API.callByPost({url: "updateDoctorDeviceToken", params: {u_id: u_id, device_id: device_token}}, {onload: function(res){console.log(res);}});
 };
 
 /*********************
@@ -178,7 +167,7 @@ function contactServerByGet(url) {
 
 function contactServerByPost(url,records) { 
 	var client = Ti.Network.createHTTPClient({
-		timeout : 5000
+		timeout : 10000
 	});
 	if(OS_ANDROID){
 	 	client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'); 

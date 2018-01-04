@@ -12,9 +12,10 @@ function do_signup(){
 
 function onload(responseText){
 	var result = JSON.parse(responseText); 
-	console.log(result.status);
+	console.log(result.status+" "+result.data);
 	if(result.status == "error"){
-		COMMON.createAlert("Error", result.data[0]);
+		console.log(result.data);
+		COMMON.createAlert("Error", result.data);
 		loading.finish();
 		return false;
 	}else{
