@@ -5,7 +5,7 @@
  */
 
 var args = arguments[0] || {};
-var audioPlayer = Ti.Media.createSound();
+var audioPlayer;// = Ti.Media.createAudioPlayer();
 var timer;
 // save off current idle timer state
 Ti.App.idleTimerDisabled = true;
@@ -35,58 +35,15 @@ if(args.pauseIcon){
 	pauseIcon = WPATH("/images/pause_button.png");
 }
 
-$.scrubBar.thumbImage = "/images/player_indicator.png";
-// show by default
-$.scrubBar.show();
-
-$.scrubBar.addEventListener('touchstart', function(e) {
-	sliderTouched = true;
-
-	if (audioPlayer.playing) {
-		sliderIsPausingPlayback = true;
-		stopTimer();
-		audioPlayer.pause();
-	}
-});
-
-$.scrubBar.addEventListener('touchend', function(e) {
-
-	// always set the new time
-	audioPlayer.setTime($.scrubBar.value);
-
-	// if paused
-	if (audioPlayer.paused) {
-		if (sliderIsPausingPlayback) {
-			audioPlayer.play();
-			startTimer();
-		}
-	}
-
-	// reset logic
-	sliderTouched = false;
-	sliderIsPausingPlayback = false;
-});
-
 function onPlayStopBtnClicked() {
 
 	// If both are false, playback is stopped.
+	console.log(audioPlayer.playing+" audioPlayer.playing");
 	if (audioPlayer.playing) {
 		audioPlayer.pause();
-
-		stopTimer();
-		console.log("why cant change to play");
 		$.playStopBtn.image = playIcon;
-
 	} else {
 		audioPlayer.play();
-
-		// set the max value of the slider
-		$.scrubBar.max = getDuration();
-
-		// start the timer
-		startTimer();
-
-		// update the icon
 		$.playStopBtn.image = pauseIcon;
 	}
 }
@@ -96,10 +53,11 @@ function onPlayStopBtnClicked() {
  */
 function getDuration() {
 	if (OS_IOS) {
-		console.log('should get this '+Math.floor(audioPlayer.duration * 1000));
-		return Math.floor(audioPlayer.duration * 1000);
+		console.log(audioPlayer.duration+" "+audioPlayer.time);
+		console.log('should get this '+Math.ceil(audioPlayer.duration * 1000));
+		return Math.ceil(audioPlayer.duration * 1000);
 	}
-	return Math.floor(audioPlayer.duration);
+	return Math.ceil(audioPlayer.duration);
 }
 
 /**
@@ -124,104 +82,89 @@ function updateTimeLabel() {
 	// calc the duration - only once started
 	totalDisplayDuration = prettifyTime(getDuration() / 1000);
 
-	$.time.text = prettifyTime(Math.round(audioPlayer.time) / 1000) + " / " + totalDisplayDuration;
-}
-
-function startTimer() {
-	// twice pr second
-	if (!timerIsActive) {
-		// calc the duration - only once started
-		totalDisplayDuration = prettifyTime(getDuration() / 1000);
-		timer = setInterval(function() {
-			var currentTime = Math.round(audioPlayer.time);
-			console.log(Math.ceil(audioPlayer.time/1000)+" >= "+Math.floor(getDuration()/1000));
-			// if(Math.ceil(audioPlayer.time/1000) >= Math.floor(getDuration()/1000)){
-				// stopTimer();
-			// }
-			$.scrubBar.value = currentTime;
-			$.time.text = prettifyTime(currentTime / 1000) + " / " + totalDisplayDuration;
-			if (currentTime == 0) {
-				console.log("lalala");
-				stopTimer();
-			};
-		}, 500);
-	}
-	timerIsActive = true;
-}
-
-function stopTimer(e) {
-	console.log(timer);
-	console.log("stop timer");
-	clearInterval(timer);
-	timerIsActive = false;
-	$.playStopBtn.image = playIcon;
-}
-
-if (OS_IOS) {
-	// iOS only events
-	audioPlayer.addEventListener('interrupted', function(e) {
-		//Ti.API.debug('[AudioPlayerWidget]' + e.type);
-		stopTimer();
-	});
-
-	audioPlayer.addEventListener('resume', function(e) {
-		//Ti.API.debug('[AudioPlayerWidget]' + e.type);
-		startTimer();
-	});
-
-} else if (OS_ANDROID) {
-	// Android only events
-	audioPlayer.addEventListener('change', function(e) {
-		Ti.API.debug("[AudioPlayerWidget] State: " + e.description + ' (' + e.state + ')');
-		// state handling
-		if (e.state == Ti.Media.Sound.STATE_PLAYING) {
-			startTimer();
-		} else if (e.state == Ti.Media.Sound.STATE_PAUSED) {
-			stopTimer();
-		} else if (e.state == Ti.Media.Sound.STATE_STOPPED) {
-			stopTimer();
-		}
-	});
+	$.time.text = totalDisplayDuration;
 }
 
 exports.setUrl = function(url) {
+    console.log("exports setUrl");
 	var filename = url.split('/').pop();
-	var file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, filename);	
-	if(file.exists()){
-		set_url(file.nativePath);
+	
+	if(OS_IOS){
+	    console.log('a');
+	    var file_temp = Titanium.Filesystem.getFile(Titanium.Filesystem.tempDirectory, filename);
 	}else{
-		var xhr = Titanium.Network.createHTTPClient({
-			onload: function() {
-				// first, grab a "handle" to the file where you'll store the downloaded data
-				var f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, filename);
-				f.write(this.responseData); // write to the file
-				Ti.App.fireEvent('graphic_downloaded', {filepath: f.nativePath});
-				set_url(f.nativePath);
-			},
-			timeout: 10000
-		});
-		xhr.open('GET', url);
-		xhr.send();
+	    var audioDir = Titanium.Filesystem.getFile(Titanium.Filesystem.externalStorageDirectory, "plux");
+        var file_temp = Ti.Filesystem.getFile(audioDir.resolve(), filename);
+	} 
+	if(file_temp.exists()){
+	    console.log('b');
+	    console.log(file_temp.nativePath+" exist");
+	    set_url(file_temp.nativePath);
+	}else{
+	    console.log('c');
+    	var file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, filename);	
+    	if(file.exists()){
+    	    console.log('d');
+    	    console.log("temp file not exist but filename exist");
+    		set_url(file.nativePath);
+    	}else{
+    	    console.log('e');
+    	    console.log("local not found");
+    		var xhr = Titanium.Network.createHTTPClient({
+    			onload: function() {
+    				// first, grab a "handle" to the file where you'll store the downloaded data
+    				var f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, filename);
+    				f.write(this.responseData); // write to the file
+    				Ti.App.fireEvent('graphic_downloaded', {filepath: f.nativePath});
+    				set_url(f.nativePath);
+    			},
+    			timeout: 10000
+    		});
+    		xhr.open('GET', url);
+    		xhr.send();
+    	}
 	}
 };
 
 function set_url(url){
 	console.log(url+" here url");
 	try{
-		audioPlayer = Ti.Media.createSound({
-			url : url,
-			allowBackground : true
-		});
+		if(OS_IOS){
+			audioPlayer = Ti.Media.createSound({
+				url : url,
+				allowBackground : true
+			});
+		}else{
+			audioPlayer = Ti.Media.createAudioPlayer({
+				url : url,
+				allowBackground : true
+			});
+		}
 	}catch(e){
 		console.log(e.message);
 	}
 	audioPlayer.play();
 	audioPlayer.stop();
+	
+	console.log(audioPlayer.time+" "+audioPlayer.duration);
 	// new sound - update the display
 	updateTimeLabel();
 	
 	// update the icon
 	$.playStopBtn.image = playIcon;
+	
+	audioPlayer.addEventListener('change', function(e) {
+		console.log('State: ' + e.description + ' (' + e.state + ')');
+	    Ti.API.info('State: ' + e.description + ' (' + e.state + ')');
+	    updateTimeLabel();
+	    if(e.state == 7){	//7 = stopped
+	    	$.playStopBtn.image = playIcon;
+	    }
+	});
+
+	audioPlayer.addEventListener("complete", function(e){
+		$.playStopBtn.image = playIcon;
+	});
 }
 
 exports.updatePlayIcon = function(icon) {
@@ -234,7 +177,7 @@ exports.updatePauseIcon = function(icon) {
 
 // call dispose when done
 exports.dispose = function() {
-	Ti.API.debug("[AudioPlayerWidget] was disposed, idleTimer reset to = " + idleTimer);
+	console.log("[AudioPlayerWidget] was disposed, idleTimer reset to = " + idleTimer);
 
 	// always stop the player
 	audioPlayer.stop();

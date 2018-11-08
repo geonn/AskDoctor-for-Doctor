@@ -1,8 +1,8 @@
 <Alloy>
-	<View id="container" class="wsize hsize" backgroundColor="#container">
+	<View id="container" class="wsize hsize">
 		<View class="wfill hsize" id="text_area">
-			<Label id="timer_text" class="wsize hsize" right="110">Recording</Label>
-			<Label id="timer" class="wsize hsize" right="50">0:00</Label>
+			<Label id="timer_text" class="wsize hsize" left="10" right="110" color="#fff">Recording</Label>
+			<Label id="timer" class="wsize hsize" color="#fff" right="50">0:00</Label>
 		</View>
 	</View>
 </Alloy>

@@ -48,11 +48,12 @@ function getNotificationNumber(payload){
 function receivePush(e) { 
 	console.log(e);
 	console.log('receive push');
+	var room_id = Ti.App.Properties.getString('room_id');
 	if(OS_IOS){
 		if(e.data.target == "chatroom"){
 			var params = {u_id:e.data.u_id, dr_id:e.data.dr_id, room_id:e.data.room_id};
 			
-			if(redirect){
+			if(room_id != e.data.room_id){
 				Alloy.Globals.Navigator.open("chatroom", params);
 			}else{
 				Ti.App.fireEvent("home:refresh");
@@ -63,7 +64,7 @@ function receivePush(e) {
 		if(e.target == "chatroom"){
 			var params = {u_id:e.u_id, dr_id:e.dr_id, room_id:e.room_id};
 			
-			if(redirect){
+			if(room_id != e.room_id){
 				Alloy.Globals.Navigator.open("chatroom", params);
 			}else{
 				Ti.App.fireEvent("home:refresh");
@@ -90,7 +91,7 @@ function deviceTokenSuccess(ex) {
 		console.log(sub);
 	    if (sub.success) { 
 	    	/** User device token**/
-	    	console.log(deviceToken+" push");
+	    	console.log(deviceToken+" deviceTokenSuccess");
      		Ti.App.Properties.setString('deviceToken', deviceToken); 
 			API.updateNotificationToken();
 			var device_token = Ti.App.Properties.getString('deviceToken');
@@ -164,7 +165,7 @@ exports.setInApp = function(){
 
 exports.registerPush = function(){
 	if (OS_IOS) {
-		Titanium.UI.iPhone.setAppBadge("0");
+		Ti.UI.iOS.setAppBadge("0");
 	}
 	registerPush();
 };

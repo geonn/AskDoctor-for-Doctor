@@ -1,0 +1,7 @@
+<Alloy>
+	<ScrollView transform="Ti.UI.create2DMatrix().rotate(180)" showVerticalScrollIndicator="true" onScroll="scrollChecker" bubbleParent="false" class='hfill wfill vert conthsize contwfill' bottom="110" top="10" id="chatroom">
+		<View id="inner_area" transform="Ti.UI.create2DMatrix().rotate(180)" class='wfill hsize vert'>
+    		
+		</View>
+	</ScrollView>
+</Alloy>

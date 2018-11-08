@@ -25,6 +25,7 @@ function onload(responseText){
    		Ti.App.Properties.setString('specialty', arr.specialty);
    		Ti.App.Properties.setString('clinic_id', arr.clinic_id);
    		Ti.App.Properties.setString('name', arr.name);
+   		console.log(arr.name+" arr.name");
    		Ti.App.fireEvent("app:_callback");
 		$.win.close();
 		//Alloy.Globals.Navigator.navGroup.open({navBarHidden: true, fullscreen: false});
@@ -44,12 +45,14 @@ function do_login(){
 		return false;
 	}
 	var device_token = Ti.App.Properties.getString('deviceToken');
-	console.log(device_token);
+	console.log("pluxDoctorLogin login");
+	
 	var params = { 
 	 	device_token: device_token,
 		email: username,  
 		password: password
 	};
+	console.log(params);
 	//API.doLogin(params, $); 
 	loading.start();
 	API.callByPost({url: "pluxDoctorLogin", params: params}, {onload: onload});

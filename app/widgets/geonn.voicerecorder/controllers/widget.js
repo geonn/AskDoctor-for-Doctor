@@ -28,16 +28,17 @@ function startRecording(){
 				outputFormat : audioRecorder.OutputFormat_MPEG_4,
 				audioEncoder : audioRecorder.AudioEncoder_AMR_NB,
 				directoryName : "plux",
-				fileName : "tempfile",
+				fileName : (Math.random() + 1).toString(36).substring(7),
 				success : function(e) {
 					//alert("success => " + e.filePath);
 					console.log("response is => " + JSON.stringify(e));
-			
-					var audioDir = Titanium.Filesystem.getFile(Titanium.Filesystem.externalStorageDirectory, "plux");
+			         
+					var audioDir = (OS_ANDROID)?Titanium.Filesystem.getFile(Titanium.Filesystem.externalStorageDirectory, "plux"):Titanium.Filesystem.getFile(Titanium.Filesystem.tempDirectory);
 					var audioFile = Ti.Filesystem.getFile(audioDir.resolve(), e.fileName);
-					console.log("audioFile.nativePath = " + audioFile.nativePath);
+					
 					if(!cancel_record){
-						args.record_callback({message: "", format:"voice", filedata: audioFile.read()});
+					    console.log("audioFile.nativePath = " + e.filePath);
+						args.record_callback({message: e.filePath, format:"voice", filedata: audioFile.read()});
 					}
 				},
 				error : function(d) {
@@ -58,7 +59,7 @@ function stopRecording(){
 			var audioFile = audioRecorder.stop();
 			console.log(audioFile);
 			if(sec > 1)
-				args.record_callback({message: "", format:"voice", filedata: audioFile.read()});
+				args.record_callback({message: audioFile.nativePath, format:"voice", filedata: audioFile.read()});
 		}else{
 			audioRecorder.stopRecording();
 		}
@@ -85,9 +86,9 @@ function init() {
 	$.text_area.width = 0;
 	console.log(WPATH('images/icon_mic.png'));
 	var img_mic = $.UI.create("ImageView", {image: WPATH('images/icon_mic.png'), backgroundColor:"#20243e", top: 10, bottom:10, zIndex:3, right: 10, height: 30, width: 30});
-	img_mic.addEventListener("touchstart", startRecording);
-	img_mic.addEventListener("touchend", stopRecording);
-	img_mic.addEventListener("touchcancel",stopRecording);
+	$.container.addEventListener("touchstart", startRecording);
+	$.container.addEventListener("touchend", stopRecording);
+	$.container.addEventListener("touchcancel",stopRecording);
 	$.container.add(img_mic);
 };
 

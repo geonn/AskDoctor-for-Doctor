@@ -1,4 +1,5 @@
 var mainView = null;
+var time_offset = Ti.App.Properties.getString('time_offset') || 0;
 
 exports.construct = function(mv){
 	mainView = mv;
@@ -32,7 +33,7 @@ function dialogTextfield(callback){
 	var dialog = Ti.UI.createAlertDialog({
 	    title: 'Enter Point',
 	    androidView: textfield,
-	    style: Ti.UI.iPhone.AlertDialogStyle.PLAIN_TEXT_INPUT,
+	    style: Ti.UI.iOS.AlertDialogStyle.PLAIN_TEXT_INPUT,
 	    buttonNames: ['OK', 'cancel']
 	});
 	dialog.addEventListener('click', function(e){
@@ -67,7 +68,9 @@ exports.createAlert = _.throttle(createAlert, 500, true);
 exports.dialogTextfield = _.throttle(dialogTextfield, 500, true);
 
 exports.now = function(){
-	var today = new Date();
+    console.log("now function");
+    console.log(Date.now()+" "+time_offset);
+	var today = new Date(Date.now()+time_offset);
 	var dd = today.getDate();
 	var mm = today.getMonth()+1; 
 	var yyyy = today.getFullYear();
@@ -105,4 +108,5 @@ exports.sync_time = function(time){
 	var l = Date.parse(now.toUTCString());
 	
 	time_offset = s-l; 
+	Ti.App.Properties.setString('time_offset', time_offset);
 };

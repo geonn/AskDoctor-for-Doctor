@@ -1,46 +1,148 @@
-var function_array = [];
-var function_onoff_array = [];
+const io = require('ti.socketio');
+const SERVER_IP = 'http://103.3.173.207:3501';
+var socket_io = io.connect(SERVER_IP);
+var room_id = 0;
+var dr_id = 0;
+var isConnected = true;
+ 
+socket_io.on('connect', function () {
+    console.log("id "+socket_io.id);
+    isConnected = true;
+    if(room_id > 0){
+        socket_io.emit('set_room', room_id);
+    }
+    socket_io.emit('set_room', "doctor");
+});
 
-exports.fireEvent = function(name, params){
-	console.log(name+"fire event");
-	console.log(params);
-	Ti.App.fireEvent(name, params);
-};
+socket_io.on('disconnect', function () {
+    console.log("disconnect");
+    isConnected = false;
+});
 
-exports.event_onoff = function(name, bool){
-	function_onoff_array[name] = bool;
-};
+socket_io.on('doctor:refresh_patient_list', function(){
+    console.log("event listener doctor:refresh_patient_list");
+    Ti.App.fireEvent("doctor:refresh_patient_list");
+});
 
-exports.addEventListener = function(name, callback){
-	console.log(name+" add socket eventlistener");
-	function_array[name] = callback;
-	function_onoff_array[name] = true;
-};
+socket_io.on('socket:refresh_chatroom', function(param){
+    console.log("event listener socket:refresh_chatroom");
+    Ti.App.fireEvent("socket:refresh_chatroom", param);
+});
 
-exports.removeEventListener = function(name){
-	function_array[name] = null;
-	function_onoff_array[name] = null;
-};
+socket_io.on("socket:getDoctorList", function(param){
+    console.log("event listener socket:getDoctorList");
+    Ti.App.fireEvent("controller:getDoctorList", param);
+});
 
-function eventManager(e){
-	console.log(e.type+" kena fire, yes!");
-	if(function_onoff_array[e.type]){
-		function_array[e.type](e);
-	}
+exports.getDoctorList = getDoctorList; 
+
+function getDoctorList(){
+    console.log(isConnected+" socket_io.connected");
+    if(isConnected){
+        socket_io.emit('socket:getDoctorList', socket_io.id);
+        console.log("socket:getDoctorList");
+    }else{
+        socket_io.connect();
+        console.log(isConnected+" socket_io.connected");
+        setTimeout(getDoctorList, 1000);
+    }
 }
 
-function webview_loaded(){
-	var u_id = Ti.App.Properties.getString('u_id') || 0;
-	API.callByPost({url:"getRoomId", params: {u_id: u_id}}, function(responseText){
-		var res = JSON.parse(responseText);
-		room_id = res.data;
-		Ti.App.fireEvent("web:setRoom", {room_id: res.data});
-		Ti.App.fireEvent("conversation:setRoom", {room_id: room_id});
-	});
+exports.startTimer = startTimer; 
+
+function startTimer(ex){
+    if(isConnected){
+        socket_io.emit('socket:startTimer', ex.room_id);
+        console.log("socket:startTimer "+ex.room_id);
+    }else{
+        socket_io.connect();
+        setTimeout(function(){startTimer(ex);}, 1000);
+    }
 }
 
-Ti.App.addEventListener('controller:getDoctorList', eventManager);
-Ti.App.addEventListener('doctor:refresh_patient_list', eventManager);
-Ti.App.addEventListener('socket:message_alert', eventManager);
-Ti.App.addEventListener('socket:refresh_chatroom', eventManager);
-Ti.App.addEventListener('webview:loaded', webview_loaded);
+exports.join_special_room = join_special_room; 
+
+function join_special_room(ex){
+    console.log(isConnected+" socket_io.connected");
+    if(isConnected){
+        socket_io.emit((OS_IOS)?'new_join_special_room':"join_special_room", {id: socket_io.id, name: ex.name, dr_id: ex.dr_id, room: 'doctor'});
+        console.log("join_special_room");
+        console.log({id: socket_io.id, name: ex.name, dr_id: ex.dr_id, room: 'doctor'});
+    }else{
+        socket_io.connect();
+        console.log(isConnected+" socket_io.connected");
+        setTimeout(function(){join_special_room(ex);}, 1000);
+    }
+}
+
+exports.leave_special_room = leave_special_room;
+
+function leave_special_room(ex){
+    console.log(isConnected+" socket_io.connected");
+    if(isConnected){
+        socket_io.emit((OS_IOS)?'new_leave_special_room':"leave_special_room", {id: socket_io.id, name: ex.name, dr_id: ex.dr_id, room: 'doctor'});
+        console.log("leave_special_room");
+        console.log({id: socket_io.id, name: ex.name, dr_id: ex.dr_id, room: 'doctor'});
+    }else{
+        socket_io.connect();
+        console.log(isConnected+" socket_io.connected");
+        setTimeout(function(){leave_special_room(ex);}, 1000);
+    }
+}
+
+exports.setRoom = setRoom;
+
+function setRoom(ex){
+    console.log(isConnected+" socket_io.connected");
+    room_id = ex.room_id;
+    if(isConnected){
+        socket_io.emit((OS_IOS)?'new_set_room':"set_room", ex.room_id);
+        console.log("set_room "+ex.room_id);
+    }else{
+        socket_io.connect();
+        console.log(isConnected+" socket_io.connected"); 
+        setTimeout(function(){setRoom(ex);}, 1000);
+    }
+}
+
+exports.refresh_patient_list = refresh_patient_list;
+
+function refresh_patient_list(ex){
+    console.log(isConnected+" socket_io.connected");
+    if(isConnected){
+        socket_io.emit('doctor:refresh_patient_list');
+        console.log("doctor:refresh_patient_list");
+    }else{
+        socket_io.connect();
+        console.log(isConnected+" socket_io.connected"); 
+        setTimeout(function(){refresh_patient_list(ex);}, 1000);
+    }
+}
+
+exports.sendMessage = sendMessage;
+
+function sendMessage(ex){
+    console.log(isConnected+" socket_io.connected");
+    if(isConnected){
+        socket_io.emit((OS_IOS)?'new_socket:refresh_chatroom':"socket:refresh_chatroom", ex.room_id, false);
+        console.log("sendMessage at room "+ex.room_id);
+    }else{
+        socket_io.connect();
+        console.log(isConnected+" socket_io.connected"); 
+        setTimeout(function(){sendMessage(ex);}, 1000);
+    }
+}
+
+exports.leave_room = leave_room;
+
+function leave_room(ex){
+    console.log(isConnected+" socket_io.connected");
+    if(isConnected){
+        socket_io.emit((OS_IOS)?'new_leave_room':"leave_room", ex.room_id);
+        console.log("leave_room "+ex.room_id);
+    }else{
+        socket_io.connect();
+        console.log(isConnected+" socket_io.connected"); 
+        setTimeout(function(){leave_room(ex);}, 1000);
+    }
+}

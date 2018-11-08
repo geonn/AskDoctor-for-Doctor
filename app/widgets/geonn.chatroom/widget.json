@@ -1,0 +1,13 @@
+{
+	"id": "geonn.chatroom",
+	"name": "geonn.chatroom",
+	"description" : "Chatroom Widget",
+	"author": "Hatsune Miku",
+	"version": "1.0",
+	"copyright":"Copyright (c) 2018 Geonn Solution Sdn Bhd",
+	"license":"Public Domain",
+	"min-alloy-version": "1.0",
+	"min-titanium-version":"3.0",
+	"tags":"",
+	"platforms":"android,ios"
+}

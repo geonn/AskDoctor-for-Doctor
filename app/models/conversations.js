@@ -7,6 +7,7 @@ exports.definition = {
 		    "sender_name": "TEXT",
 		    "message": "TEXT",
 		    "created": "DATE",
+		    "room_id": "TEXT",
 		    "status":"INTEGER",		//1 - pending, 2 - sent, 3 - read
 		    "format":"TEXT",
 		    "dr_id":"INTEGER",
@@ -14,8 +15,7 @@ exports.definition = {
 		},
 		adapter: {
 			type: "sql",
-			collection_name: "conversations",
-			idAttribute: "id"
+			collection_name: "conversations"
 		}
 	},
 	extendModel: function(Model) {
@@ -48,7 +48,7 @@ exports.definition = {
             	}
             	return 0;
 			},
-			getData: function(latest, start, anchor, last_updated, u_id){
+			getData_bak: function(latest, limit, anchor, last_updated, u_id){
 				//var last_update = last_update || common.now();
 				if(latest){
 					var a = last_updated;
@@ -59,6 +59,36 @@ exports.definition = {
 					var sql_lastupdate = "";
 					var sql_id = " AND created > '"+last_updated+"'";
 				}else{
+					var start_limit = " limit 0, "+limit;
+					var sql_lastupdate = " AND created <= '"+anchor+"'";
+					var sql_id = "";
+				}
+				
+				var collection = this;
+				var dr_id = Ti.App.Properties.getString('dr_id'); 
+                var sql = "select * from (SELECT * from conversations where dr_id = ? "+sql_id+" AND u_id=? order by created desc) as b order by b.created" ; 
+                var library = Alloy.Collections.instance("conversations");
+                console.log(sql);
+                library.fetch({query: {
+					statement: sql,
+					params: [dr_id, u_id]
+					}
+				});
+				
+				return limit+20;
+
+			},
+			getData: function(latest, start, anchor, last_updated, u_id, room_id){
+				//var last_update = last_update || common.now();
+				if(latest){
+					var a = last_updated;
+					last_updated = a.replace("  "," ");
+					console.log(last_updated+" last_updated");
+					var start_limit = "";
+					//var sql_lastupdate = " AND created > '"+b[0]+" "+b[1]+"'";
+					var sql_lastupdate = "";
+					var sql_id = " AND created >= '"+last_updated+"'";
+				}else{
 					var start_limit = " limit "+start+", 10";
 					var sql_lastupdate = " AND created <= '"+anchor+"'";
 					var sql_id = "";
@@ -66,14 +96,17 @@ exports.definition = {
 				
 				var collection = this;
 				var dr_id = Ti.App.Properties.getString('dr_id'); 
-                var sql = "SELECT * from conversations where dr_id = ? "+sql_lastupdate+sql_id+" AND u_id=? order by created desc"+start_limit ; 
+               	var sql = "SELECT * from conversations where 1 "+sql_lastupdate+sql_id+" AND room_id=? order by created desc "+start_limit ; 
+                //var sql = "select * from (SELECT * from conversations where dr_id = ? "+sql_id+" AND u_id=? order by created desc"+start_limit+" ) as b order by b.created" ; 
                 
+                console.log(sql);
+                console.log(room_id);
                 db = Ti.Database.open(collection.config.adapter.db_name);
                 if(Ti.Platform.osname != "android"){
                 	db.file.setRemoteBackup(false);
                 }
             	
-            	var res = db.execute(sql, dr_id, u_id);
+            	var res = db.execute(sql, room_id);
                	var arr = [];
                 var count = 0;
                  /**
@@ -209,10 +242,18 @@ exports.definition = {
 	                		_.find(names, function(name){
 	                			if(name == k){
 	                				keys.push(k);
-	                				console.log(k+" key");
-	                				console.log(entry[k]);
-	                				entry[k] = (entry[k] == null)?"":entry[k];
-			                		eval_values.push("\""+entry[k]+"\"");
+	                				console.log(typeof entry[k]+" "+entry[k]);
+	                				
+	                				if(typeof entry[k] == "string"){
+	                					entry[k] = (entry[k] == null)?"":entry[k];
+	                					entry[k] = entry[k].replace(/"/g, "'");
+	                					eval_values.push("\""+entry[k]+"\"");
+	                				}else if(typeof entry[k] == "number"){
+	                					eval_values.push(entry[k]);
+	                				}else{
+	                					eval_values.push("\""+entry[k]+"\"");
+	                				}
+			                		
 	                			}
 	                		});
 	                	}

@@ -113,11 +113,11 @@ exports.definition = {
                 var count = 0;
                  /**
                  * debug use
-                 **/
+                 *
                 var row_count = res.fieldCount;
                 for(var a = 0; a < row_count; a++){
             		 console.log(a+":"+res.fieldName(a)+":"+res.field(a));
-            	 }
+            	 }*/
             	
                 while (res.isValidRow()){
                 	var row_data = {};
@@ -183,6 +183,11 @@ exports.definition = {
                 db = Ti.Database.open(collection.config.adapter.db_name);
                 if(Ti.Platform.osname != "android"){
                 	db.file.setRemoteBackup(false);
+                }
+                if(arr.length <= 0){
+                    db.close();
+                    collection.trigger('sync');
+                    return;
                 }
                 console.log(arr.length+" number of arr to save into "+ collection.config.adapter.db_name);
                 db.execute("BEGIN");

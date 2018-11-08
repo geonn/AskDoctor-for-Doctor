@@ -1,7 +1,7 @@
 <Alloy>
 	<Window id="win" theme="Theme.NoActionBar" title="Home" navBarHidden="true" fullscreen="false">
     <View class='hsize wfill vert' top="20">
-    	<WebView zIndex="100" url="/html/index.html" id="socket" class="wfill" height="0"></WebView>
+    	<!--<WebView zIndex="100" url="/html/index.html" id="socket" class="wfill" height="0"></WebView>-->
     	<View class="wfill hsize padding horz">
     		<ImageView image="/images/icons/more_btn.png" width="40" onClick="popMore"></ImageView>
     		<Label class="hsize h3" left="10" width="60%" id="doctor_name"></Label>
@@ -9,8 +9,8 @@
     			<Switch right="0" class="wsize hsize" id="onDuty" onChange="update_online_status" value="true"/>
     		</View>
     	</View>
-    	<TableView onClick="navTo" id="tbl">
-    		<SearchBar backgroundColor="transparent" platform="ios"></SearchBar>
+    	<TableView onClick="navTo" id="tbl" filterAttribute="id" backgroundColor="#a02532">
+    		<SearchBar backgroundColor="transparent" platform="ios" backgroundColor="#a02532"></SearchBar>
     		<SearchView backgroundColor="transparent" platform="android"></SearchView>
     	</TableView>
     </View>

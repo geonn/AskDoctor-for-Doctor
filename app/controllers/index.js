@@ -81,6 +81,7 @@ function _callback(){
 	console.log("callback from login");
 	loadingView.getView().open();
 	loadingView.start();*/
+	console.log("callback called");
 	Alloy.Globals.Navigator.navGroup.open({navBarHidden: true, fullscreen: false});
 	Ti.App.fireEvent("home:refresh");
 }

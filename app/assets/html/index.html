@@ -9,15 +9,22 @@
     </style>
   </head>
   <body>
-    <script src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+    <script src="js/socket.io.js"></script>
     <script src="http://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
-     var socket = io("http://103.3.173.207:3500");
+     var socket = io("http://103.3.173.207:3501");
      var room_id = 0;
-      
+     var dr_id = 0;
+     
       socket.on('doctor:refresh_patient_list', function(){
 	  	Ti.App.fireEvent("doctor:refresh_patient_list");
 	  });
+	  
+	  socket.on('disconnect', function () {
+        console.log("disconnect");
+        Ti.App.fireEvent("disconnect from socket and reconnect");
+        socket.open();
+      });
 	  
 	  socket.on('socket:refresh_chatroom', function(param){
 	  	Ti.App.fireEvent("socket:refresh_chatroom", param);
@@ -29,20 +36,28 @@
 	      
 	  socket.on('connect', function () {
 	  	Ti.App.fireEvent("id "+socket.id);
+	  	if(room_id > 0){
+            socket.emit('set_room', room_id);
+        }
+        socket.emit('set_room', "doctor");
 	  });   
 	  
 	  Ti.App.addEventListener("socket:getDoctorList", function(){
   	  	socket.emit('socket:getDoctorList', socket.id);
   	  	Ti.App.fireEvent("socket:getDoctorList"+e.room_id+" room id");
 	  });  
+	  
+	  Ti.App.addEventListener("socket:startTimer", function(ex){
+        socket.emit('socket:startTimer', ex.room_id);
+      });  
+	  
 	    
 	  Ti.App.addEventListener("socket:join_special_room", function(e){
-  	  	
 	     socket.emit('join_special_room', {id: socket.id, name: e.name, dr_id: e.dr_id, room: 'doctor'});
   	  	 Ti.App.fireEvent("join_special_room "+e.name);
   	  });
   	  
-  	   Ti.App.addEventListener("socket:leave_special_room", function(e){
+  	  Ti.App.addEventListener("socket:leave_special_room", function(e){
   	  	
 	     socket.emit('leave_special_room', {id: socket.id, name: e.name, dr_id: e.dr_id, room: 'doctor'});
   	  	 Ti.App.fireEvent("leave_special_room "+e.name);
@@ -54,10 +69,25 @@
   	  	Ti.App.fireEvent("set room"+e.room_id+" room id");
   	  });
   	  
+  	  Ti.App.addEventListener("refresh_patient_list", function(ex) {
+        socket.emit('doctor:refresh_patient_list');
+      });
+  	  
   	  Ti.App.addEventListener("socket:sendMessage", function(ex) {
       	Ti.App.fireEvent("socket:refresh_chatroom see how many time"+ex.room_id);
     	socket.emit('socket:refresh_chatroom', ex.room_id, false);
   	  });
+  	  
+  	  Ti.App.addEventListener("socket:open", function(ex) {
+  	      socket.open();
+  	      if(socket.connected){
+  	          console.log("socket:open connected");
+  	      }else{
+  	          console.log("socket:open disconnect");
+  	          socket.connect();
+  	      }
+  	      socket.emit('set_room', "doctor");
+    });
   	  
   	  Ti.App.addEventListener("socket:leave_room", function(ex) {
   	  	Ti.App.fireEvent("leave "+room_id+" id");

@@ -1,16 +1,23 @@
 <Alloy>
+	<Collection src="conversations"/>
 	<Window id="win" title="Home">
-		<ScrollView class="wfill hfill" contentHeight="Ti.UI.FILL" contentWidth="Ti.UI.FILL">
-	    	<ScrollView class='hfill wfill vert conthsize contwfill' bottom="110" top="10" id="chatroom">
-	    		<View id="inner_area" class="wfill hsize vert">
-	    			
-	    		</View>
-	    	</ScrollView>
-	    	<View class="wfill vert" bottom="0" height="110" >
-	    		<Button class="button" onClick="closeRoom" bottom="10" backgroundColor="#00c8a9">End Session</Button>
+	    <ScrollView class="wfill hfill contwfill conthsize">
+	    	<View class="wfill hfill vert" top="0">
+	    	    <View class="hfill wfill">
+    	    	<ScrollView transform="Ti.UI.create2DMatrix().rotate(180)" showVerticalScrollIndicator="true" onScroll="scrollChecker" bubbleParent="false" class='hfill wfill vert conthsize contwfill' bottom="100" top="10" id="chatroom">
+    	    		<View id="inner_area" class='wfill hsize vert'>
+    		    		
+    	    		</View>
+    	    	</ScrollView>
+    	    	</View>
+	    	</View>
+	    	
+	    	<View class="wfill vert hsize" bottom="0" >
+	    		<Button class="button" onClick="doAction" action="closeRoom" id="action_button" bottom="10" backgroundColor="#00c8a9">End Session</Button>
 	    		
-	    		<View backgroundColor="#20243e" class="wfill hsize" bottom="0" id='bottom_bar'>
-			    	<TextField id="message" id="message" onChange="switchIcon" font="fontSize: 40" class="small_padding wfill" left="10" bottom="10" right="50" height="40" ></TextField>
+	    		<View backgroundColor="#20243e" class="wfill" height="50" bottom="0" id='bottom_bar'>
+			    	<ImageView backgroundColor="#20243e" image="/images/icons/icon_photo_camera.png" top="15" bottom="10" zIndex="3" left="10" height="30" width="30" onClick="popCamera"></ImageView>
+			    	<TextField id="message" onChange="switchIcon" font="fontSize: 40" class="small_padding wfill" left="50" bottom="10" right="50" height="40" ></TextField>
 			    	<View id="action_btn" right="0" class="wsize hsize" backgroundColor="#20243e">
 			    		<ImageView id="enter_icon" backgroundColor="#20243e" image="/images/icons/icon_enter.png" top="10" bottom="10" zIndex="3" right="-50" height="30" width="30" onClick="SendMessage"></ImageView>
 			    	</View>

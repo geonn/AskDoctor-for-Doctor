@@ -16,9 +16,9 @@ var PUSH = require('push');
 var COMMON = require('common'); 
 var DBVersionControl = require('DBVersionControl');
 var socket = require('socket');
+
 var last_update_on = true;
 var room_id = 0;
-socket.addEventListener("socket:message_alert", message_alert);
 DBVersionControl.checkAndUpdate();
 
 function parent(key, e){
@@ -144,6 +144,9 @@ function message_alert(e){
 	}
 }
 
+function pixelToDp(px) {
+    return ( parseInt(px) / (Titanium.Platform.displayCaps.dpi / 160));
+}
 
 function currentDateTime(){
 	var today = new Date();

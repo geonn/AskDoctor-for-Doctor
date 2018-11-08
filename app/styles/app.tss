@@ -26,7 +26,7 @@ overrode the settings with other TSS, XML, or JS settings:
 	width: Ti.UI.FILL,
 	height: Ti.UI.SIZE,
 	font: {
-		fontFamily: 'Lato-Regular',
+		fontFamily: 'Roboto-Light',
 		fontSize: 12
 	}
 },
@@ -42,12 +42,13 @@ overrode the settings with other TSS, XML, or JS settings:
         color: "#ffffff"
    },
    font: {
-		fontFamily: 'Lato-Regular',
+		fontFamily: 'Roboto-Light',
 	}
 },
 
 'Window[platform=android]': {
 	barColor: "transparent",
+	windowSoftInputMode: Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN,
     modal: false, // make android windows all heavyweight
     fullscreen: false,
 },
@@ -64,7 +65,7 @@ overrode the settings with other TSS, XML, or JS settings:
 	right: 10,
 	top: 10,
 	font: {
-		fontFamily: 'Lato-Regular'
+		fontFamily: 'Roboto-Light'
 	}
 },
 
@@ -92,7 +93,7 @@ overrode the settings with other TSS, XML, or JS settings:
 	height: Ti.UI.SIZE,
 	font:{
 		fontSize: 14,
-		fontFamily: 'Lato-Regular',
+		fontFamily: 'Roboto-Light',
 	}
 }
 
@@ -107,7 +108,7 @@ overrode the settings with other TSS, XML, or JS settings:
 	right: 10,
 	top: 10,
 	font: {
-		fontFamily: 'Lato-Regular',
+		fontFamily: 'Roboto-Light',
 	}
 },
 
@@ -201,42 +202,42 @@ overrode the settings with other TSS, XML, or JS settings:
 ".h1":{
 	font:{
 		fontSize: 36,
-		fontFamily: 'Lato-Light',
+		fontFamily: 'Roboto-Light',
 	}
 },
 
 ".h2":{
 	font:{
 		fontSize: 30,
-		fontFamily: 'Lato-Light',
+		fontFamily: 'Roboto-Light',
 	}
 },
 
 ".h3":{
 	font:{
 		fontSize: 24,
-		fontFamily: 'Lato-Light',
+		fontFamily: 'Roboto-Light',
 	}
 },
 
 ".h4":{
 	font:{
 		fontSize: 18,
-		fontFamily: 'Lato-Light',
+		fontFamily: 'Roboto-Light',
 	},
 },
 
 ".h5":{
 	font:{
 		fontSize: 14,
-		fontFamily: 'Lato-Light',
+		fontFamily: 'Roboto-Light',
 	}
 },
 
 ".h6":{
 	font:{
 		fontSize: 12,
-		fontFamily: 'Lato-Light',
+		fontFamily: 'Roboto-Light',
 	}
 },
 
@@ -282,9 +283,9 @@ overrode the settings with other TSS, XML, or JS settings:
 
 ".bold":{
 	font: {
-		fontFamily: 'Lato-Regular',
+		fontFamily: 'Roboto-Bold',
 	}
-},
+}, 
 
 ".white":{
 	color: "#ffffff"

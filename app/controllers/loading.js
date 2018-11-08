@@ -1,4 +1,5 @@
 var args = arguments[0] || {};
+console.log($.loadingBar);
 $.loadingBar.hide();
 $.activityIndicator.hide();
 /**

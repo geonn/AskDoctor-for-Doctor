@@ -1,0 +1,8 @@
+
+<Alloy>
+	<Window title="" backButtonTitle="" class="container" navTintColor="#CE1D1C" id="win" >
+        <View class="wfill hfill vert" backgroundColor="#f5f5f5">
+	        <WebView backgroundColor="#f5f5f5" id="surveyView" class=" wfill hfill"   />
+		</View>
+	</Window>
+</Alloy>
