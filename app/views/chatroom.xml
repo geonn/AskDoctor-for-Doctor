@@ -13,13 +13,13 @@
 	    	</View>
 	    	
 	    	<View class="wfill vert hsize" bottom="0" >
-	    		<Button class="button" onClick="doAction" action="closeRoom" id="action_button" bottom="10" backgroundColor="#00c8a9">End Session</Button>
+	    		<Button class="button" onClick="doAction" id="action_button" bottom="10" backgroundColor="#00c8a9">End Session</Button>
 	    		
 	    		<View backgroundColor="#20243e" class="wfill" height="50" bottom="0" id='bottom_bar'>
 			    	<ImageView backgroundColor="#20243e" image="/images/icons/icon_photo_camera.png" top="15" bottom="10" zIndex="3" left="10" height="30" width="30" onClick="popCamera"></ImageView>
 			    	<TextField id="message" onChange="switchIcon" font="fontSize: 40" class="small_padding wfill" left="50" bottom="10" right="50" height="40" ></TextField>
 			    	<View id="action_btn" right="0" class="wsize hsize" backgroundColor="#20243e">
-			    		<ImageView id="enter_icon" backgroundColor="#20243e" image="/images/icons/icon_enter.png" top="10" bottom="10" zIndex="3" right="-50" height="30" width="30" onClick="SendMessage"></ImageView>
+			    		<ImageView id="enter_icon" backgroundColor="#20243e" image="/images/icons/icon_enter.png" top="10" bottom="10" zIndex="3" right="10" height="30" width="30" onClick="SendMessage"></ImageView>
 			    	</View>
 			    </View>
 	    	</View>

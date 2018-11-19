@@ -51,7 +51,7 @@ function receivePush(e) {
 	var room_id = Ti.App.Properties.getString('room_id');
 	if(OS_IOS){
 		if(e.data.target == "chatroom"){
-			var params = {u_id:e.data.u_id, dr_id:e.data.dr_id, room_id:e.data.room_id};
+			var params = {u_id:e.data.u_id, dr_id:e.data.dr_id, room_id:e.data.room_id, status: e.data.status};
 			
 			if(room_id != e.data.room_id){
 				Alloy.Globals.Navigator.open("chatroom", params);
@@ -62,7 +62,7 @@ function receivePush(e) {
 		}
 	}else{
 		if(e.target == "chatroom"){
-			var params = {u_id:e.u_id, dr_id:e.dr_id, room_id:e.room_id};
+			var params = {u_id:e.u_id, dr_id:e.dr_id, room_id:e.room_id, status: e.status};
 			
 			if(room_id != e.room_id){
 				Alloy.Globals.Navigator.open("chatroom", params);
@@ -150,6 +150,7 @@ function registerPush(){
 
 Ti.App.addEventListener("pause", function(e){
 	console.log('sleep');
+	socket.disconnect();
 	redirect = true;
 });
 

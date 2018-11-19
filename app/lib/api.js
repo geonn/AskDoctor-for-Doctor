@@ -69,57 +69,54 @@ exports.loadAPIBySequence = function (e){ //counter,
 // call API by post method
 exports.callByPost = function(e, handler){
 	
-	var deviceToken = Ti.App.Properties.getString('deviceToken');
-	if(deviceToken != ""){ 
-		var url = "https://"+API_DOMAIN+"/api/"+e.url+"?user="+USER+"&key="+KEY;
-		console.log(url);
-		console.log(e.params);
-		if(e.type == "voice"){
-			var _result = contactServerByPostVideo(url, e.params || {});  
-		}else{
-			var _result = contactServerByPost(url, e.params || {});  
-		}
-		_result.onload = function(ex) {  
-			console.log(this.responseText);
-			try{
-				JSON.parse(this.responseText);
-			}
-			catch(e){
-				console.log(this.responseText);
-				console.log('callbypost JSON exception');
-				console.log(e);
-				COMMON.createAlert("Error", e.message, handler.onexception);
-				return;
-			}
-			_.isFunction(handler.onload) && handler.onload(this.responseText); 
-		};
-		
-		_result.onerror = function(ex) {
-			//-1001	The request timed out.
-			if(ex.code == "-1009"){		//The Internet connection appears to be offline.
-				COMMON.createAlert("Error", ex.error, handler.onerror);
-				return;
-			}
-			COMMON.createAlert("Error", ex.error, handler.onerror);
-			/*
-			if(_.isNumber(e.retry_times)){
-				console.log(e.retry_times);
-				e.retry_times --;
-				if(e.retry_times > 0){
-					API.callByPost(e, handler);
-				}else{
-					console.log('onerror msg');
-					console.log(ex);
-					COMMON.createAlert("Error", ex.error, handler.onerror);
-				}
-			}else{
-				console.log('onerror msg without no');
-				console.log(ex);
-				e.retry_times = 2;
-				API.callByPost(e, handler);
-			}*/
-		};
+	var url = "https://"+API_DOMAIN+"/api/"+e.url+"?user="+USER+"&key="+KEY;
+	console.log(url);
+	console.log(e.params);
+	if(e.type == "voice"){
+		var _result = contactServerByPostVideo(url, e.params || {});  
+	}else{
+		var _result = contactServerByPost(url, e.params || {});  
 	}
+	_result.onload = function(ex) {  
+		console.log(this.responseText);
+		try{
+			JSON.parse(this.responseText);
+		}
+		catch(e){
+			console.log(this.responseText);
+			console.log('callbypost JSON exception');
+			console.log(e);
+			COMMON.createAlert("Error", e.message, handler.onexception);
+			return;
+		}
+		_.isFunction(handler.onload) && handler.onload(this.responseText); 
+	};
+	
+	_result.onerror = function(ex) {
+		//-1001	The request timed out.
+		if(ex.code == "-1009"){		//The Internet connection appears to be offline.
+			COMMON.createAlert("Error", ex.error, handler.onerror);
+			return;
+		}
+		COMMON.createAlert("Error", ex.error, handler.onerror);
+		/*
+		if(_.isNumber(e.retry_times)){
+			console.log(e.retry_times);
+			e.retry_times --;
+			if(e.retry_times > 0){
+				API.callByPost(e, handler);
+			}else{
+				console.log('onerror msg');
+				console.log(ex);
+				COMMON.createAlert("Error", ex.error, handler.onerror);
+			}
+		}else{
+			console.log('onerror msg without no');
+			console.log(ex);
+			e.retry_times = 2;
+			API.callByPost(e, handler);
+		}*/
+	};
 };
 
 // call API by post method

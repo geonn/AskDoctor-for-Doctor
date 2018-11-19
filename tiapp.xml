@@ -2,7 +2,7 @@
 <ti:app xmlns:ti="http://ti.appcelerator.org">
     <id>com.plux.pluxForDoctor</id>
     <name>AskDoctor for Doctor</name>
-    <version>1.0.7.1015</version>
+    <version>1.0.7.1016</version>
     <publisher>yikonnlau</publisher>
     <url>undefined</url>
     <description>askdoctor is a app for ask question to doctor</description>
@@ -110,7 +110,7 @@
         <module platform="android">titutorial.audiorecorder</module>
         <module platform="iphone">hyperloop</module>
         <module platform="android">ti.socketio</module>
-        <module platform="iphone">ti.socketio</module>
+        <module platform="iphone" version="1.1.0">ti.socketio</module>
     </modules>
     <deployment-targets>
         <target device="android">true</target>
@@ -118,7 +118,7 @@
         <target device="iphone">true</target>
         <target device="mobileweb">false</target>
     </deployment-targets>
-    <sdk-version>7.4.1.GA</sdk-version>
+    <sdk-version>7.5.0.GA</sdk-version>
     <plugins>
         <plugin version="1.0">ti.alloy</plugin>
     </plugins>

@@ -14,7 +14,8 @@ var status_text = ["", "Sending", "Sent", "Read"];
 var data;
 var room_id = args.room_id;
 Ti.App.Properties.setString('room_id', room_id);
-var voice_recorder = Alloy.createWidget('geonn.voicerecorder', {record_callback: saveLocal, loadingStart: loadingStart});
+//var voice_recorder = Alloy.createWidget('geonn.voicerecorder', {record_callback: saveLocal, loadingStart: loadingStart});
+console.log("check args");
 console.log(args);
 
 /**
@@ -30,7 +31,7 @@ function SendMessage(){
             console.log("change room status to 5");
             args.status = 5;
             $.action_button.title = "End Session";
-            $.action_button.action = "closeRoom";
+            $.action_button.action = "endSession";
             //socket.fireEvent("socket:startTimer", {room_id: room_id});
             }
         });
@@ -131,6 +132,7 @@ function render_conversation(latest, local){
             addRow(data[i], latest);
         }*/
     }
+    updateReadStatus();
 }
 
 function addRow(row, latest){
@@ -179,12 +181,14 @@ function addRow(row, latest){
 		    //console.log("is user docor read"+user_read_status+" > "+ row.created);
 		    row_status = 3;
 		}
-		
+	   console.log(row);
+	   console.log(row.is_endUser);
+	   console.log((row.is_endUser)?timeFormat(row.created):timeFormat(row.created)+" "+status_text[row_status]);
 		var label_time = $.UI.create("Label", {
 			classes:['h7', 'wsize', 'hsize'],
             bottom:0,
             left: 10,
-			text: timeFormat(row.created)+" "+status_text[row_status],
+			text: (row.is_endUser)?timeFormat(row.created):timeFormat(row.created)+" "+status_text[row_status],
 			textAlign: "right"
 		});
 		
@@ -304,33 +308,51 @@ function imageZoom(e){
     }
 }
 
+function updateReadStatus(){
+    var inner_area = $.inner_area.getChildren();
+    for (var i=0; i < inner_area.length; i++) {
+        
+        if(inner_area[i].children[0].children.length <= 1){
+            console.log("not possible here");
+            //$.bottom_bar.hide();
+        }else if(inner_area[i].is_endUser != 1 && typeof inner_area[i].children[0].children[inner_area[i].children[0].children.length - 1] != "undefined" && doctor_read_status > inner_area[i].created){
+            console.log(inner_area[i].is_endUser+" inner_area[i].is_endUser");
+            //inner_area[i].children[0].children[0].children[inner_area[i].children[0].children[0].children.length - 1].text = timeFormat(inner_area[i].created)+" "+status_text[3];
+        }
+    };
+}
+
 function updateRow(row, latest){
 	var found = false;
 	var inner_area = $.inner_area.getChildren();
 	for (var i=0; i < inner_area.length; i++) {
-        
-        console.log(inner_area[i].children[0].children.length+" inner_area[i].children[0].children.length");
-        if(inner_area[i].children[0].children.length <= 1){
-            console.log("not possible here");
-            //$.bottom_bar.hide();
-        }else if(inner_area[i].is_endUser && typeof inner_area[i].children[0].children[inner_area[i].children[0].children.length - 1] != "undefined" && doctor_read_status > inner_area[i].created ){
-            console.log("is user read"+doctor_read_status+" > "+ inner_area[i].created);
-            inner_area[i].children[0].children[0].children[inner_area[i].children[0].children[0].children.length - 1].text = timeFormat(inner_area[i].created)+" "+status_text[3];
-        }else if(!inner_area[i].is_endUser && typeof inner_area[i].children[0].children[inner_area[i].children[0].children.length - 1] != "undefined" && user_read_status > inner_area[i].created){
-            console.log("is user docor read"+user_read_status+" > "+ inner_area[i].created);
-            inner_area[i].children[0].children[0].children[inner_area[i].children[0].children[0].children.length - 1].text = timeFormat(inner_area[i].created)+" "+status_text[3];
-        }else if(inner_area[i].id == row.id){
+        if(inner_area[i].id == row.id){
             found = true;
-            console.log(inner_area[i].children[0].children[0]+" inner_area[i].children[0].children[0]");
-            console.log(inner_area[i].children[0].children[0].length+" inner_area[i].children[0].children[0].length");
-            
-            console.log(timeFormat(row.created)+" "+status_text[row.status]);
-            inner_area[i].children[0].children[0].children[inner_area[i].children[0].children[0].children.length - 1].text = timeFormat(row.created)+" "+status_text[row.status];
+            //inner_area[i].children[0].children[0].children[inner_area[i].children[0].children[0].children.length - 1].text = timeFormat(row.created)+" "+status_text[row.status];
         }
     };
 	if(!found){
 		addRow(row, latest);
 	}
+}
+
+function endSession(){
+    var dialog = Ti.UI.createAlertDialog({
+            cancel: 1,
+            buttonNames: ['Confirm', 'Cancel'],
+            message: 'Would you like to end the conversation?',
+            title: 'End Session'
+          });
+          
+      dialog.addEventListener('click', function(ex){
+          console.log(ex.index);
+         if (ex.index === ex.source.cancel){
+           
+         }else{
+             closeRoom();
+         }
+      });
+    dialog.show();
 }
 
 function closeRoom(){
@@ -347,6 +369,7 @@ function closeRoom(){
 }
 
 function switchIcon(e){
+    return;
     console.log(e.source.value);
 	if(e.source.value != ""){
 		$.enter_icon.right = 10;
@@ -370,7 +393,6 @@ function getConversationByRoomId(callback){
 			
 			var res = JSON.parse(responseText);
 			var arr = res.data || undefined;
-			console.log(res);
 			//console.log(res.last_updated+" res.last_updated");
 			model.saveArray(arr, callback);
 			checker.updateModule(1, "getMessage", res.last_updated, args.u_id);
@@ -453,7 +475,7 @@ function getPreviousData(param){
 	console.log(args.u_id+" args.u_id");
 	data = model.getData(false, start, anchor,"", args.u_id, room_id);
 	console.log("get previous data");
-	console.log(data);
+	console.log(data.length);
 	last_id = (data.length > 0)?_.first(data)['id']:last_id;
 	last_update = (data.length > 0)?_.last(data)['created']:last_update;
 	last_uid = (data.length > 0)?_.first(data)['sender_id']:last_uid;
@@ -489,7 +511,7 @@ function getLatestData(local){
 	//model.getData(false, start, last_update,"", args.u_id);
 	data = model.getData(true,"","", last_update, args.u_id, room_id); 
 	console.log("get latest data");
-	console.log(data);
+	console.log(data.length);
 	render_conversation(true, local);
 	//setTimeout(function(e){scrollToBottom();}, 500);	
 }
@@ -528,8 +550,8 @@ function closeWindow(){
 }
 
 function second_init(){
-	var mic = voice_recorder.getView();
-	$.action_btn.add(mic);
+	//var mic = voice_recorder.getView();
+	//$.action_btn.add(mic);
 	if(OS_ANDROID){
 	    $.win.setWindowSoftInputMode(Ti.UI.Android.SOFT_INPUT_ADJUST_PAN);
 	}
@@ -891,8 +913,10 @@ function init(){
         });
         
         $.action_button.title = "End Session";
-        $.action_button.action = "closeRoom";
+        $.action_button.action = "endSession";
     }
+    second_init();
+    /*
 	if (OS_ANDROID) {
 		if (Ti.Android.hasPermission("android.permission.RECORD_AUDIO")) {
 			checkingInternalPermission();
@@ -911,7 +935,7 @@ function init(){
 		};
 	}else{
 		second_init();
-	};
+	};*/
 }
 
 init();
@@ -943,10 +967,17 @@ $.win.addEventListener("close", function(){
 $.win.addEventListener("open", function(){
    if (this.activity) {
     this.activity.onResume = function() {
+      socket.connect();
       refresh_latest();
     };  
+    this.activity.onPause = function() {
+      socket.disconnect();
+    }; 
   }
   else {
-    Ti.App.addEventListener("resumed", refresh_latest);
+    Ti.App.addEventListener("resumed", function(){
+        socket.connect();
+        refresh_latest();
+    });
   } 
 });

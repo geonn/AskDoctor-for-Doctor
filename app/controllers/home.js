@@ -63,7 +63,7 @@ function render_list(){
 		var sitin_value = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h5'], bottom:10, text: dr_name_title});
 		var label_user = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h5','bold'], left:10, text: data[i].patient_name});
 		var label_last_user = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h5'], text: data[i].sender_name});
-		var last_sender_title = (data[i].last_sender == data[i].dr_name)?"You":data[i].last_sender;
+		var last_sender_title = (data[i].last_sender == Ti.App.Properties.getString('name'))?"You":data[i].last_sender;
 		var label_last_message = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h6'], left:10, text: last_sender_title+": "+message});
 		var view_right = $.UI.create("View", {touchEnabled:false, classes:['hsize'],top:10, right:0, width: "30%", bottom:5});
 		var label_time = $.UI.create("Label", {touchEnabled:false, classes:['wsize','hsize','h6'], right: 10, minimumFontSize:8, textAlign: "right", right:0, text: moment(data[i].created).fromNow()});
@@ -204,13 +204,16 @@ Ti.App.addEventListener('home:refresh',refresh);
 $.win.addEventListener("open", function(){
    if (this.activity) {
     this.activity.onResume = function() {
-      Ti.App.fireEvent("socket:open");
+      socket.connect();
       refresh();
     };  
+    this.activity.onPause = function() {
+      socket.disconnect();
+    }; 
   }else {
     Ti.App.addEventListener("resumed", function() {
         console.log("app resume");
-        Ti.App.fireEvent("socket:open");
+        socket.connect();
         refresh();
     });
   } 
