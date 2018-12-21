@@ -13,8 +13,11 @@ var last_uid;
 var status_text = ["", "Sending", "Sent", "Read"];
 var data;
 var room_id = args.room_id;
+var opposite_online = "false";
+var opposite_last_update;
+
 Ti.App.Properties.setString('room_id', room_id);
-//var voice_recorder = Alloy.createWidget('geonn.voicerecorder', {record_callback: saveLocal, loadingStart: loadingStart});
+var voice_recorder = Alloy.createWidget('geonn.voicerecorder', {record_callback: saveLocal, loadingStart: loadingStart});
 console.log("check args");
 console.log(args);
 
@@ -33,16 +36,21 @@ function SendMessage(){
             $.action_button.title = "End Session";
             $.action_button.action = "endSession";
             //socket.fireEvent("socket:startTimer", {room_id: room_id});
+            loading.start();
+            sending = true;
+            $.message.editable = false;
+            saveLocal({message: $.message.value, format:"text"});
             }
         });
-    }
-	if($.message.value == "" || sending){
-		return;
+    }else{
+        if($.message.value == "" || sending){
+    		return;
+    	}
+    	loading.start();
+    	sending = true;
+        $.message.editable = false;
+    	saveLocal({message: $.message.value, format:"text"});
 	}
-	loading.start();
-	sending = true;
-	$.message.editable = false;
-	saveLocal({message: $.message.value, format:"text"});
 }
 
 function saveLocal(param){
@@ -80,18 +88,19 @@ function saveLocal(param){
 	render_conversation(true, true);
 	var api_param = {dr_id: dr_id, message: param.message, is_doctor:1, is_endUser:0, u_id: args.u_id, sender_name: Ti.App.Properties.getString('name'), format: param.format, sender_id: dr_id, id: app_id, room_id: room_id };
 	if(param.format == "voice" || param.format == "photo"){
+	    loading.start();
 		_.extend(api_param, {media: param.format, Filedata: param.filedata});
 	}
 	console.log(api_param);
 	API.callByPost({url: "sendMessage", type: param.format, params:api_param}, {onload: function(responseText){
-		
+
 		var res = JSON.parse(responseText);
 		$.message.value = "";
 		$.message.editable = true;
 		sending = false;
 		$.message.blur();
 		loading.finish();
-		
+        $.enter_icon.right = -50;
 		socket.sendMessage({room_id: room_id});
 	}});
 }
@@ -109,7 +118,7 @@ function render_conversation(latest, local){
             sending = false;
             console.log("sending set false");
         }else{
-            
+
         }
         //$.chatroom.setContentOffset({y: 100});
     }
@@ -127,12 +136,12 @@ function render_conversation(latest, local){
         updateRow(data[i], latest);
         /*
         if((data[i].is_endUser && data[i].status > 1) || data[i].status == 3){
-            
+
         }else{
             addRow(data[i], latest);
         }*/
     }
-    updateReadStatus();
+    //updateReadStatus();
 }
 
 function addRow(row, latest){
@@ -144,7 +153,7 @@ function addRow(row, latest){
 		is_endUser: row.is_endUser,
 		created: row.created
 	});
-	
+
 	if(row.sender_id){
 	    console.log(row.sender_id+" can add?"+row.message );
 		var view_text_container = $.UI.create("View", {
@@ -162,28 +171,26 @@ function addRow(row, latest){
 			color: "#FFFFFF",
 			text: row.sender_name
 		});
-		
+
 		var ss = row.message;
 		var newText = (row.format != "photo")?ss.replace("[br]", "\r\n"):row.message;
 		var text_color = (row.format == "link")?"blue":"#ffffff";
-		
+
 		var label_message = $.UI.create("Label", {
 			classes:['h5', 'wfill', 'hsize','padding'],
 			top:5,
 			color: text_color,
 			text: newText
 		});
-		var row_status = row.status;
-		if(row.is_endUser && doctor_read_status > row.created){
-		   // console.log("is user read"+doctor_read_status+" > "+ row.created);
-		    row_status = 3;
-		}else if(!row.is_endUser && user_read_status > row.created ){
-		    //console.log("is user docor read"+user_read_status+" > "+ row.created);
-		    row_status = 3;
-		}
-	   console.log(row);
-	   console.log(row.is_endUser);
-	   console.log((row.is_endUser)?timeFormat(row.created):timeFormat(row.created)+" "+status_text[row_status]);
+		var row_status = (opposite_last_update > row.created || opposite_online == "true")?3:row.status;
+		console.log("addrow "+opposite_last_update +" "+ row.created+" || "+opposite_online);
+		console.log(row_status+" "+row.status);
+	   if(!row.is_endUser){
+	       var last_update_by_room = socket.getLastUpdateByRoom(room_id);
+	       if(last_update_by_room && last_update_by_room > row.created){
+	           row_status = 3;
+	       }
+	   }
 		var label_time = $.UI.create("Label", {
 			classes:['h7', 'wsize', 'hsize'],
             bottom:0,
@@ -191,25 +198,25 @@ function addRow(row, latest){
 			text: (row.is_endUser)?timeFormat(row.created):timeFormat(row.created)+" "+status_text[row_status],
 			textAlign: "right"
 		});
-		
+
 		var view_photo_name = $.UI.create("View", {classes:['wfill','hsize']});
 		var view_hr = $.UI.create("View", {height: 1, width: Ti.UI.FILL, backgroundColor: "#ccc", top:5, left:10, right: 10});
         view_photo_name.add(label_name);
         view_text_container.add(view_photo_name);
         view_text_container.add(view_hr);
-        
+
 		if (row.format == "link"){
 			var label_message2 = $.UI.create("Label", {
 				classes:['h5', 'wfill', 'hsize','small_padding'],
 				top: 0,
-				left:15, 
+				left:15,
 				text: "Thanks you for contacting our call centre. \nWe would love to hear your thoughts or feedback on how we can improve your experience!\nClick below to start the survey:"
 			});
 			view_text_container.add(label_message2);
 			view_text_container.add(label_message);
 		}else if(row.format == "voice"){
 			var player = Alloy.createWidget('dk.napp.audioplayer', {playIcon: "\uf144", pauseIcon: "\uf28c"});
-			
+
 			player.setUrl(newText);
 			//download_video(player, newText);
 			var view = $.UI.create("View", {classes:['wfill','hsize','padding']});
@@ -224,7 +231,7 @@ function addRow(row, latest){
 		}else{
 			view_text_container.add(label_message);
 		}
-		
+
 		view_photo_name.add(label_time);
 		if(!row.is_endUser){
 			view_text_container.setBackgroundColor("#84474a");
@@ -236,7 +243,7 @@ function addRow(row, latest){
 			view_text_container.setBackgroundColor("#871f28");
 			//
 			if(typeof args.record != "undefined"){
-				
+
 				view_text_container.width = "60%";
 				view_text_container.setRight(60);
 			}else{
@@ -246,7 +253,7 @@ function addRow(row, latest){
 		if(row.format == "link"){
 			label_message.addEventListener("click", navToWebview);
 		}
-		
+
 	}else{
 	    console.log(row.message+" is no sender_id");
 		var view_text_container = $.UI.create("View", {
@@ -255,7 +262,7 @@ function addRow(row, latest){
 			top: 5,
 			backgroundColor: "#3ddaf6"
 		});
-		
+
 		var label_system_msg = $.UI.create("Label",{
 			classes: ['wsize', 'hsize','padding','h6'],
 			text: row.message
@@ -273,12 +280,12 @@ function addRow(row, latest){
 		    message: 'Would you like to delete the message?',
 		    title: 'Delete'
 		  });
-		  
+
 	  dialog.addEventListener('click', function(ex){
 		 if (ex.index === ex.source.cancel){
 
 		 }else if(ex.index == 0){
-		 	
+
 		 	var model = Alloy.createCollection("conversations");
 			model.removeById(m_id);
 		 	$.inner_area.remove(message_box);
@@ -308,16 +315,17 @@ function imageZoom(e){
     }
 }
 
-function updateReadStatus(){
+function updateReadStatus(e){
     var inner_area = $.inner_area.getChildren();
     for (var i=0; i < inner_area.length; i++) {
-        
+
         if(inner_area[i].children[0].children.length <= 1){
             console.log("not possible here");
             //$.bottom_bar.hide();
-        }else if(inner_area[i].is_endUser != 1 && typeof inner_area[i].children[0].children[inner_area[i].children[0].children.length - 1] != "undefined" && doctor_read_status > inner_area[i].created){
+        }else if(inner_area[i].is_endUser != 1 && typeof inner_area[i].children[0].children[inner_area[i].children[0].children.length - 1] != "undefined" && (opposite_last_update > inner_area[i].created || opposite_online == "true") &&  inner_area[i].status == 2){
             console.log(inner_area[i].is_endUser+" inner_area[i].is_endUser");
-            //inner_area[i].children[0].children[0].children[inner_area[i].children[0].children[0].children.length - 1].text = timeFormat(inner_area[i].created)+" "+status_text[3];
+            inner_area[i].status = 3;
+            inner_area[i].children[0].children[0].children[inner_area[i].children[0].children[0].children.length - 1].text = timeFormat(inner_area[i].created)+" "+status_text[3];
         }
     };
 }
@@ -328,7 +336,13 @@ function updateRow(row, latest){
 	for (var i=0; i < inner_area.length; i++) {
         if(inner_area[i].id == row.id){
             found = true;
-            //inner_area[i].children[0].children[0].children[inner_area[i].children[0].children[0].children.length - 1].text = timeFormat(row.created)+" "+status_text[row.status];
+
+        }
+        if(inner_area[i].children[0].children.length > 1 && inner_area[i].status == 1){
+            console.log(opposite_online+" updaterow");
+      		inner_area[i].status = (opposite_online == "true")?3:row.status;
+            inner_area[i].children[0].children[0].children[inner_area[i].children[0].children[0].children.length - 1].text = timeFormat(row.created)+" "+status_text[(opposite_online == "true")?3:row.status];
+            //inner_area[i].children[0].children[0].children[inner_area[i].children[0].children[0].children.length - 1].text = timeFormat(row.created)+" "+status_text[(opposite_online)?3:row.status];
         }
     };
 	if(!found){
@@ -343,11 +357,11 @@ function endSession(){
             message: 'Would you like to end the conversation?',
             title: 'End Session'
           });
-          
+
       dialog.addEventListener('click', function(ex){
           console.log(ex.index);
          if (ex.index === ex.source.cancel){
-           
+
          }else{
              closeRoom();
          }
@@ -358,19 +372,17 @@ function endSession(){
 function closeRoom(){
 	var dr_id = Ti.App.Properties.getString('dr_id') || 0;
 	API.callByPost({
-		url:"closeRoom", 
+		url:"closeRoom",
 		params: {dr_id: dr_id, room_id: room_id}
 	},{
 		onload: function(responseText){
 			socket.sendMessage({room_id: room_id});
-			closeWindow();
 		}
 	});
+	closeWindow();
 }
 
 function switchIcon(e){
-    return;
-    console.log(e.source.value);
 	if(e.source.value != ""){
 		$.enter_icon.right = 10;
 	}else{
@@ -381,16 +393,16 @@ function switchIcon(e){
 var user_read_status, doctor_read_status;
 
 function getConversationByRoomId(callback){
-	var checker = Alloy.createCollection('updateChecker'); 
+	var checker = Alloy.createCollection('updateChecker');
 	var dr_id = Ti.App.Properties.getString('dr_id') || 0;
 	var isUpdate = checker.getCheckerById(1, args.u_id);
 	var last_updated = isUpdate.updated || "";
 	last_update = last_updated;
 	console.log({dr_id: dr_id, last_updated: last_updated, u_id: args.u_id, is_doctor: 1, room_id: room_id});
-	API.callByPost({url:"getMessage", params: {dr_id: dr_id, last_updated: last_updated, u_id: args.u_id, is_doctor: 1, room_id: room_id}}, 
+	API.callByPost({url:"getMessage", params: {dr_id: dr_id, last_updated: last_updated, u_id: args.u_id, is_doctor: 1, room_id: room_id}},
 		{onload: function(responseText){
 			var model = Alloy.createCollection("conversations");
-			
+
 			var res = JSON.parse(responseText);
 			var arr = res.data || undefined;
 			//console.log(res.last_updated+" res.last_updated");
@@ -435,10 +447,10 @@ function refresh(callback, firsttime){
 		callback({firsttime: firsttime});
 		loading.finish();
 		refreshing = false;
-		//var model = Alloy.createCollection("conversations"); 
+		//var model = Alloy.createCollection("conversations");
 		//model.messageRead({dr_id: dr_id});
 	});
-	
+
 }
 var refreshing = false;
 var time_offset = COMMON.now();
@@ -448,7 +460,7 @@ function refresh_latest(param){
 	/*if(typeof(param.admin) != "undefined"){
 		Ti.App.Properties.setString('estimate_time', "0");
 	}else{
-		
+
 	}*/
 	if(!refreshing && time_offset < COMMON.now()){
 		refreshing = true;
@@ -468,8 +480,8 @@ $.chatroom.addEventListener("postlayout", function(e){
 	}
 });
 
-function getPreviousData(param){ 
-	
+function getPreviousData(param){
+
 	start = (typeof start != "undefined")? start : 0;
 	var model = Alloy.createCollection("conversations");
 	console.log(args.u_id+" args.u_id");
@@ -483,14 +495,14 @@ function getPreviousData(param){
 	start = start + 10;
 }
 /*
-function getPreviousData(param){ 
+function getPreviousData(param){
 	start = parseInt(start);
 	var model = Alloy.createCollection("conversations");
 	console.log(dr_id+" dr_id");
 	console.log(args.u_id+" args.u_id");
 	data = model.getData(false, limit, anchor,"", args.u_id);
 	var estimate_time = Ti.App.Properties.getString('estimate_time');
-	
+
 	last_id = (data.length > 0)?_.first(data)['id']:last_id;
 	last_update = (data.length > 0)?_.last(data)['created']:last_update;
 	last_uid = (data.length > 0)?_.first(data)['sender_id']:last_uid;
@@ -502,18 +514,18 @@ function getPreviousData(param){
 			//$.chatroom.contentOffset.y = 1500;//(0, 1000, false);
 		}
 	}else{
-		
+
 	}
 }*/
 
 function getLatestData(local){
-	var model = Alloy.createCollection("conversations"); 
+	var model = Alloy.createCollection("conversations");
 	//model.getData(false, start, last_update,"", args.u_id);
-	data = model.getData(true,"","", last_update, args.u_id, room_id); 
+	data = model.getData(true,"","", last_update, args.u_id, room_id);
 	console.log("get latest data");
 	console.log(data.length);
 	render_conversation(true, local);
-	//setTimeout(function(e){scrollToBottom();}, 500);	
+	//setTimeout(function(e){scrollToBottom();}, 500);
 }
 
 function transformFunction(model){
@@ -523,22 +535,22 @@ function transformFunction(model){
 }
 
 function timeFormat(datetime){
-	var timeStamp = datetime.split(" "); 
+	var timeStamp = datetime.split(" ");
 	var newFormat;
 	var ampm = "am";
-	var date = timeStamp[0].split("-");  
+	var date = timeStamp[0].split("-");
 	if(timeStamp.length == 1){
 		newFormat = date[2]+"/"+date[1]+"/"+date[0] ;
 	}else{
-		var time = timeStamp[1].split(":");  
+		var time = timeStamp[1].split(":");
 		if(time[0] > 12){
 			ampm = "pm";
 			time[0] = time[0] - 12;
 		}
-		
+
 		newFormat = date[2]+"/"+date[1]+"/"+date[0] + " "+ time[0]+":"+time[1]+ " "+ ampm;
 	}
-	
+
 	return newFormat;
 }
 
@@ -548,27 +560,49 @@ function timeFormat(datetime){
 function closeWindow(){
 	$.win.close();
 }
-
+var mic = voice_recorder;
 function second_init(){
-	//var mic = voice_recorder.getView();
-	//$.action_btn.add(mic);
+	
+	$.action_btn.add(mic.getView());
 	if(OS_ANDROID){
 	    $.win.setWindowSoftInputMode(Ti.UI.Android.SOFT_INPUT_ADJUST_PAN);
 	}
 	socket.setRoom({room_id: args.room_id});
+    updateTime({online:true});
 	$.win.add(loading.getView());
 	if(!Titanium.Network.online){
 		//COMMON.createAlert("Alert", "There is no internet connection.", closeWindow);
 	}
-	
+
 	refresh(getPreviousData, true);
+}
+
+function startRecording(){
+    mic.startRecording();
+}
+
+function stopRecording(){
+    mic.stopRecording();
+}
+
+function changeBg(e){
+    if(e.type == "touchstart"){
+        e.source.backgroundColor = "orange";
+    }else{
+        e.source.backgroundColor = "green";
+    }
+}
+
+function updateTime(e){
+  var dr_id = Ti.App.Properties.getString('dr_id') || 0;
+  socket.update_room_member_time({last_update: COMMON.now(), u_id: dr_id, room_id: room_id, online: e.online});
 }
 
 var data_loading = false;
 function scrollChecker(e){
 	var total = (OS_ANDROID)?pixelToDp(e.y): e.y;
 	var nearEnd = ($.inner_area.rect.height-$.chatroom.rect.height) - 200;
-	
+
 	if(total >= nearEnd && !data_loading){
 		data_loading = true;
 		getPreviousData({});
@@ -580,7 +614,7 @@ function scrollChecker(e){
 			//$.chatroom.setContentOffset({y: top}, {animated: false});
 			data_loading = false;
 		}, 200);
-	}	
+	}
 }
 
 function loadingStart(){
@@ -589,19 +623,19 @@ function loadingStart(){
 
 function checkingInternalPermission(){
 	if(Titanium.Filesystem.hasStoragePermissions()){
-  		second_init();       
+  		second_init();
  	}else{
  		setTimeout(function(){
 	  		Titanium.Filesystem.requestStoragePermissions(function(e) {
 	       		if (e.success) {
-	     			second_init();       
+	     			second_init();
 	       		} else {
-	     			common.createAlert("Warning","You don't have file storage permission!!!\nYou can go to setting enabled the permission.",function(e){
+	     			COMMON.createAlert("Warning","You don't have file storage permission!!!\nYou can go to setting enabled the permission.",function(e){
 	      				closeWindow();
 	    	 		});
 	       		}
-	  	 	});     
-	  	},1000);   
+	  	 	});
+	  	},1000);
 	}
 }
 
@@ -638,24 +672,24 @@ function filepermittion()
 }
 
 function popCamera(e){
-	
+
 	if(!filepermittion()) return;
 
-	var dialog = Titanium.UI.createOptionDialog({ 
-	    title: 'Choose an image source...', 
-	    options: ['Camera','Photo Gallery', 'Cancel'], 
+	var dialog = Titanium.UI.createOptionDialog({
+	    title: 'Choose an image source...',
+	    options: ['Camera','Photo Gallery', 'Cancel'],
 	    cancel:2 //index of cancel button
 	});
 	var pWidth = Ti.Platform.displayCaps.platformWidth;
     var pHeight = Ti.Platform.displayCaps.platformHeight;
-     
-	dialog.addEventListener('click', function(e) { 
-	    
+
+	dialog.addEventListener('click', function(e) {
+
 	    if(e.index == 0) { //if first option was selected
 	        //then we are getting image from camera]
 	        if(Ti.Media.hasCameraPermissions()){
         		console.log("Success to open camera");
-		        Titanium.Media.showCamera({ 
+		        Titanium.Media.showCamera({
 		            success:photoSuccessCallback,
 		            cancel:function(){
 		                //do somehting if user cancels operation
@@ -669,20 +703,20 @@ function popCamera(e){
 		                }else{
 		                    a.setMessage('Unexpected error: ' + error.code);
 		                }
-		 
+
 		                // show alert
 		                a.show();
 		            },
 		            allowImageEditing:true,
 		            mediaTypes : [Ti.Media.MEDIA_TYPE_PHOTO],
 		            saveToPhotoGallery:true
-		        });	        			        	
+		        });
 	        }else{
 		        Ti.Media.requestCameraPermissions(function(e){
-		        	
+
 		        	if(e.success){
 		        		console.log("Success to open camera");
-				        Titanium.Media.showCamera({ 
+				        Titanium.Media.showCamera({
 				            success:photoSuccessCallback,
 				            cancel:function(){
 				                //do somehting if user cancels operation
@@ -696,14 +730,14 @@ function popCamera(e){
 				                }else{
 				                    a.setMessage('Unexpected error: ' + error.code);
 				                }
-				 
+
 				                // show alert
 				                a.show();
 				            },
 				            allowImageEditing:true,
 				            mediaTypes : [Ti.Media.MEDIA_TYPE_PHOTO],
 				            saveToPhotoGallery:true
-				        });	        		
+				        });
 		        	}
 		        	else{
 		        		alert("You denied permission.");
@@ -717,7 +751,7 @@ function popCamera(e){
 		    	if(Ti.Filesystem.hasStoragePermissions()){
 	        		console.log("Success to open photo gallery");
 			        Titanium.Media.openPhotoGallery({
-			            
+
 			            success: photoSuccessCallback,
 						cancel:function() {
 							// called when user cancels taking a picture
@@ -735,14 +769,14 @@ function popCamera(e){
 					    // allowEditing and mediaTypes are iOS-only settings
 						allowEditing: true,
 			            mediaTypes : [Ti.Media.MEDIA_TYPE_PHOTO],
-			        });        			        	
+			        });
 		        }else{
 			        Ti.Filesystem.requestStoragePermissions(function(e){
-			        	
+
 			        	if(e.success){
 			        		console.log("Success to open photo gallery");
 					        Titanium.Media.openPhotoGallery({
-					            
+
 					            success:photoSuccessCallback,
 								cancel:function() {
 									// called when user cancels taking a picture
@@ -760,7 +794,7 @@ function popCamera(e){
 							    // allowEditing and mediaTypes are iOS-only settings
 								allowEditing: true,
 					            mediaTypes : [Ti.Media.MEDIA_TYPE_PHOTO],
-					        });     		
+					        });
 			        	}
 			        	else{
 			        		alert("You denied permission.");
@@ -771,7 +805,7 @@ function popCamera(e){
 		    	if(Ti.Media.hasPhotoGalleryPermissions()){
 	        		console.log("Success to open photo gallery");
 			        Titanium.Media.openPhotoGallery({
-			            
+
 			            success:photoSuccessCallback,
 						cancel:function() {
 							// called when user cancels taking a picture
@@ -789,14 +823,14 @@ function popCamera(e){
 					    // allowEditing and mediaTypes are iOS-only settings
 						allowEditing: true,
 			            mediaTypes : [Ti.Media.MEDIA_TYPE_PHOTO],
-			        });        			        	
+			        });
 		        }else{
 			        Ti.Media.requestPhotoGalleryPermissions(function(e){
-			        	
+
 			        	if(e.success){
 			        		console.log("Success to open photo gallery");
 					        Titanium.Media.openPhotoGallery({
-					            
+
 					            success:photoSuccessCallback,
 								cancel:function() {
 									// called when user cancels taking a picture
@@ -814,7 +848,7 @@ function popCamera(e){
 							    // allowEditing and mediaTypes are iOS-only settings
 								allowEditing: true,
 					            mediaTypes : [Ti.Media.MEDIA_TYPE_PHOTO],
-					        });     		
+					        });
 			        	}
 			        	else{
 			        		alert("You denied permission.");
@@ -823,10 +857,10 @@ function popCamera(e){
 		        }
 	    	}
 	    } else {
-	    
+
 	    }
 	});
-	 
+
 	//show dialog
 	dialog.show();
 }
@@ -838,6 +872,15 @@ function photoSuccessCallback(event) {
     console.log(" "+event.media.width+" "+event.media.height);
     console.log(new_width+" "+new_height);
     blob = blob.imageAsResized(new_width, new_height);
+    API.callByPost({url:"changeRoomStatus", params: {dr_id: dr_id, room_id: room_id, status: 5}}, {
+    onload: function(responseText){
+        console.log("change room status to 5");
+        args.status = 5;
+        $.action_button.title = "End Session";
+        $.action_button.action = "endSession";
+        //socket.fireEvent("socket:startTimer", {room_id: room_id});
+        }
+    });
     saveLocal({message: event.media.nativePath, format:"photo", filedata: blob});
 }
 
@@ -911,7 +954,7 @@ function init(){
             }
         }
         });
-        
+
         $.action_button.title = "End Session";
         $.action_button.action = "endSession";
     }
@@ -939,11 +982,21 @@ function init(){
 }
 
 init();
+
+function patient_last_update(e){
+    opposite_online = e.online;
+    opposite_last_update = e.last_update;
+    updateReadStatus();
+}
+
 Ti.App.addEventListener("socket:refresh_chatroom", refresh_latest);
 Ti.App.addEventListener('conversation:refresh', refresh_latest);
+Ti.App.addEventListener("socket:user_last_update", updateReadStatus);
+Ti.App.addEventListener("socket:patient_last_update", patient_last_update);
 
 $.win.addEventListener("close", function(){
     Ti.App.Properties.setString('room_id', "");
+    updateTime({online:false});
     console.log(args.status+" window close");
     if(args.status == 2){
         console.log("equal to leave room");
@@ -959,25 +1012,50 @@ $.win.addEventListener("close", function(){
 	socket.leave_room({room_id: room_id});
 	Ti.App.removeEventListener("socket:refresh_chatroom", refresh_latest);
 	Ti.App.removeEventListener('conversation:refresh', refresh_latest);
-	Ti.App.removeEventListener("resumed", refresh_latest);
+  Ti.App.removeEventListener("socket:user_last_update", updateReadStatus);
+  Ti.App.removeEventListener("socket:patient_last_update", patient_last_update);
+  Ti.App.removeEventListener("resumed", resume);
+  Ti.App.removeEventListener("paused", pause);
 	$.destroy();
-	 
+
 });
+
+function resume(){
+  socket.connect();
+  console.log("resumed here");
+  updateTime({online:true});
+  redirect = false;
+  refresh_latest();
+}
+
+function pause(){
+  socket.disconnect();
+  console.log("redirect set as true");
+  updateTime({online:false});
+  redirect = true;
+}
 
 $.win.addEventListener("open", function(){
    if (this.activity) {
     this.activity.onResume = function() {
       socket.connect();
       refresh_latest();
-    };  
+      updateTime({online:true});
+      setTimeout(function(){
+          redirect = false;
+          console.log("redirect as false");
+      }, 2000);
+
+    };
     this.activity.onPause = function() {
       socket.disconnect();
-    }; 
+      console.log("redirect set as true");
+      updateTime({online:false});
+      redirect = true;
+    };
   }
   else {
-    Ti.App.addEventListener("resumed", function(){
-        socket.connect();
-        refresh_latest();
-    });
-  } 
+    Ti.App.addEventListener("resumed", resume);
+    Ti.App.addEventListener("paused", pause);
+  }
 });

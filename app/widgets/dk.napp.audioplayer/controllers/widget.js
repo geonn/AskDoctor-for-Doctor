@@ -36,7 +36,7 @@ if(args.pauseIcon){
 }
 
 function onPlayStopBtnClicked() {
-
+    Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_PLAYBACK;
 	// If both are false, playback is stopped.
 	console.log(audioPlayer.playing+" audioPlayer.playing");
 	if (audioPlayer.playing) {
@@ -130,10 +130,15 @@ function set_url(url){
 	console.log(url+" here url");
 	try{
 		if(OS_IOS){
+		    Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_PLAYBACK;
 			audioPlayer = Ti.Media.createSound({
 				url : url,
 				allowBackground : true
 			});
+			console.log(audioPlayer.volume+"sound volume");
+			audioPlayer.volume = 1;
+			console.log(audioPlayer.volume+"sound volume new");
+			
 		}else{
 			audioPlayer = Ti.Media.createAudioPlayer({
 				url : url,

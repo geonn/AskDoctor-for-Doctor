@@ -19,18 +19,18 @@ function doLogout(){
     user.logout(function(){
         var win = Alloy.createController("auth/login").getView();
         win.open();
-        //Alloy.Globals.Navigator.navGroup.close(); 
-        
+        //Alloy.Globals.Navigator.navGroup.close();
+
     });*/
-    
+
     var dr_id = Ti.App.Properties.getString('dr_id') || 0;
     var temp_deviceToken = Ti.App.Properties.getString('deviceToken') || '';
     Ti.App.Properties.removeAllProperties();
-    Ti.App.Properties.setString('deviceToken', temp_deviceToken); 
+    Ti.App.Properties.setString('deviceToken', temp_deviceToken);
     API.callByPost({url: "doLogoutDoctor", params: {dr_id: dr_id}}, {onload: function(){
         var win = Alloy.createController("auth/login").getView();
         win.open();
-        
+
     }});
 }
 
@@ -64,7 +64,7 @@ function render_list(){
 		var label_user = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h5','bold'], left:10, text: data[i].patient_name});
 		var label_last_user = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h5'], text: data[i].sender_name});
 		var last_sender_title = (data[i].last_sender == Ti.App.Properties.getString('name'))?"You":data[i].last_sender;
-		var label_last_message = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h6'], left:10, text: last_sender_title+": "+message});
+		var label_last_message = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h6'], left:10, text: last_sender_title+": "+message.replace("[br]", "\r\n")});
 		var view_right = $.UI.create("View", {touchEnabled:false, classes:['hsize'],top:10, right:0, width: "30%", bottom:5});
 		var label_time = $.UI.create("Label", {touchEnabled:false, classes:['wsize','hsize','h6'], right: 10, minimumFontSize:8, textAlign: "right", right:0, text: moment(data[i].created).fromNow()});
 		var view_hr = $.UI.create("View", {classes:['wfill', 'padding'], top:0, backgroundColor: "#ccc", height: 1});
@@ -75,10 +75,10 @@ function render_list(){
 		view_main.add(view_right);
 		status_view.add(status_title);
 		status_view.add(status_value);
-		
+
 		sitin_view.add(sitin_title);
         sitin_view.add(sitin_value);
-		
+
         view_main.add(status_view);
         view_main.add(sitin_view);
 		row.add(view_main);
@@ -90,13 +90,13 @@ function render_list(){
 function refresh(){
     $.doctor_name.text = Ti.App.Properties.getString('name');
 	loading.start();
-	var checker = Alloy.createCollection('updateChecker'); 
+	var checker = Alloy.createCollection('updateChecker');
 	var dr_id = Ti.App.Properties.getString('dr_id') || 0;
 	var isUpdate = checker.getCheckerById(0, dr_id);
 	var last_updated = isUpdate.updated || "";
 	last_update = last_updated;
 	console.log({dr_id: dr_id});
-	API.callByPost({url:"getMessageListForDoctor", params: {dr_id: dr_id}}, 
+	API.callByPost({url:"getMessageListForDoctor", params: {dr_id: dr_id}},
 		{onload: function(responseText){
 			var model = Alloy.createCollection("room");
 			var res = JSON.parse(responseText);
@@ -122,9 +122,9 @@ function popMore(){
 	  options: ['Logout', "App Version "+Titanium.App.version, 'Cancel'],
 	  title: 'More'
 	});
-		
-	dialog.show(); 
-	dialog.addEventListener("click", function(e){   
+
+	dialog.show();
+	dialog.addEventListener("click", function(e){
 		if(e.index == 0){
 			doLogout();
 		}
@@ -135,19 +135,29 @@ function popMore(){
 function init(){
 	console.log("init");
 	socket_loaded();
-	
-	PUSH.registerPush();
 	$.win.add(loading.getView());
 	var AppVersionControl = require('AppVersionControl');
 	$.doctor_name.text = Ti.App.Properties.getString('name');
-	
+    checkAndroidPermission();
 	//AppVersionControl.checkAndUpdate();
+}
+
+function checkAndroidPermission(){
+    if(OS_ANDROID){
+        var hasRecordPermission = Ti.Android.hasPermission("android.permission.RECORD_AUDIO");
+        if(!hasRecordPermission){
+            Ti.Android.requestPermissions("android.permission.RECORD_AUDIO", function(e) {
+                console.log(e);
+            });
+        }
+    }
+    
 }
 
 API.callByPost({url: "dateNow"}, {
     onload: function(responseText){
         var res = JSON.parse(responseText);
-        
+
         if(res.status != "error"){
             COMMON.sync_time(res.data);
         }
@@ -169,7 +179,7 @@ function onDuty(e){
 			status = true;
 		}
 	};
-	
+
 	if($.onDuty.value != status){
 	   var name = Ti.App.Properties.getString('name');
 	   socket.join_special_room({name: name, dr_id: dr_id});
@@ -206,17 +216,28 @@ $.win.addEventListener("open", function(){
     this.activity.onResume = function() {
       socket.connect();
       refresh();
-    };  
+      setTimeout(function(){
+          redirect = false;
+          console.log("redirect as false");
+      }, 2000);
+    };
     this.activity.onPause = function() {
       socket.disconnect();
-    }; 
+      console.log("redirect set as true");
+      redirect = true;
+    };
   }else {
     Ti.App.addEventListener("resumed", function() {
         console.log("app resume");
         socket.connect();
         refresh();
     });
-  } 
+  }
+});
+
+$.win.addEventListener("postlayout", function(){
+   var PUSH = require('push');
+    PUSH.registerPush(); 
 });
 
 Ti.App.addEventListener("doctor:refresh_patient_list", refresh);

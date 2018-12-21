@@ -106,7 +106,7 @@ exports.definition = {
                 	db.file.setRemoteBackup(false);
                 }
             	
-            	var res = db.execute(sql, room_id);
+            	var res = db.execute(sql, room_id.toString());
                	var arr = [];
                 var count = 0;
                  /**

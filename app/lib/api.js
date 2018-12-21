@@ -97,25 +97,30 @@ exports.callByPost = function(e, handler){
 		if(ex.code == "-1009"){		//The Internet connection appears to be offline.
 			COMMON.createAlert("Error", ex.error, handler.onerror);
 			return;
-		}
-		COMMON.createAlert("Error", ex.error, handler.onerror);
-		/*
-		if(_.isNumber(e.retry_times)){
-			console.log(e.retry_times);
-			e.retry_times --;
-			if(e.retry_times > 0){
-				API.callByPost(e, handler);
-			}else{
-				console.log('onerror msg');
-				console.log(ex);
-				COMMON.createAlert("Error", ex.error, handler.onerror);
-			}
+		}else if(ex.code == "-1001"){
+		    if(_.isNumber(e.retry_times)){
+                console.log(e.retry_times);
+                e.retry_times --;
+                if(e.retry_times > 0){
+                    API.callByPost(e, handler);
+                }else{
+                    console.log('onerror msg');
+                    console.log(ex);
+                    COMMON.createAlert("Error", ex.error, handler.onerror);
+                }
+            }else{
+                console.log('onerror msg without no');
+                console.log(ex);
+                e.retry_times = 2;
+                API.callByPost(e, handler);
+            }
 		}else{
-			console.log('onerror msg without no');
-			console.log(ex);
-			e.retry_times = 2;
-			API.callByPost(e, handler);
-		}*/
+		    console.log(ex);
+		    COMMON.createAlert("Error", ex.error, handler.onerror);
+		}
+		
+		/*
+		*/
 	};
 };
 

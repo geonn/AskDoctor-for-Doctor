@@ -47,13 +47,30 @@ overrode the settings with other TSS, XML, or JS settings:
 },
 
 'Window[platform=android]': {
-	barColor: "transparent",
-	windowSoftInputMode: Titanium.UI.Android.SOFT_INPUT_STATE_HIDDEN,
+	barColor: "transparent", //Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS
+	windowSoftInputMode: Titanium.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS,
     modal: false, // make android windows all heavyweight
     fullscreen: false,
 },
 
-'TextField': {
+'TextField[platform=ios]': {
+	height: 40,
+	backgroundColor: "#ffffff",
+	borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
+	left: 10,
+	right: 10,
+	top: 10,
+	width: Ti.UI.FILL,
+	font: {
+		fontFamily: 'Roboto-Light'
+	},
+	padding:{
+		left:5,
+		right:5,
+	}
+}
+
+'TextField[platform=android]': {
     height: Ti.UI.SIZE,
 	borderColor: "#a5a5a5",
 	borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED,

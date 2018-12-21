@@ -1,31 +1,31 @@
 var mainView = null;
-var time_offset = Ti.App.Properties.getString('time_offset') || 0;
+var time_offset = parseInt(Ti.App.Properties.getString('time_offset'))+0 || 0;
 
 exports.construct = function(mv){
 	mainView = mv;
 };
-exports.deconstruct = function(){  
+exports.deconstruct = function(){
 	mainView = null;
 };
 
 function openWindow(win){
 	if(Ti.Platform.osname == "android"){
 	  	win.open(); //{fullscreen:false, navBarHidden: false}
-	}else{ 
+	}else{
 		var nav = Alloy.Globals.navMenu;
-		nav.openWindow(win,{animated:true});  
-	} 
+		nav.openWindow(win,{animated:true});
+	}
 }
 
 
 //function closeWindow(win){
 exports.closeWindow = function(win){
-	if(Ti.Platform.osname == "android"){ 
-	  	win.close(); 
-	}else{ 
+	if(Ti.Platform.osname == "android"){
+	  	win.close();
+	}else{
 		var nav = Alloy.Globals.navMenu;
-		nav.closeWindow(win,{animated:true});  
-	} 
+		nav.closeWindow(win,{animated:true});
+	}
 };
 
 function dialogTextfield(callback){
@@ -70,43 +70,43 @@ exports.dialogTextfield = _.throttle(dialogTextfield, 500, true);
 exports.now = function(){
     console.log("now function");
     console.log(Date.now()+" "+time_offset);
-	var today = new Date(Date.now()+time_offset);
+	var today = new Date(Date.now()+parseInt(time_offset));
 	var dd = today.getDate();
-	var mm = today.getMonth()+1; 
+	var mm = today.getMonth()+1;
 	var yyyy = today.getFullYear();
-	
+
 	var hours = today.getHours();
 	var minutes = today.getMinutes();
 	var sec = today.getSeconds();
 	if (minutes < 10){
 		minutes = "0" + minutes;
-	} 
+	}
 	if (sec < 10){
 		sec = "0" + sec;
-	} 
+	}
 	if(dd<10) {
 	    dd='0'+dd;
-	} 
-	
+	}
+
 	if(mm<10) {
 	    mm='0'+mm;
-	} 
-	
+	}
+
 	datetime = yyyy+'-'+mm+'-'+dd + " "+ hours+":"+minutes+":"+sec;
 	return datetime ;
 };
 
-exports.sync_time = function(time){ 
+exports.sync_time = function(time){
 	var a = time.trim();
 	a = a.replace("  ", " ");
 	var b = a.split(" ");
 	var date = b[0].split("-");
-	var time = b[1].split(":"); 
+	var time = b[1].split(":");
 	var s_date = new Date(date[0], date[1]-1, date[2],time[0],time[1],time[2]);
 	var now = new Date();
 	var s = Date.parse(s_date.toUTCString());
 	var l = Date.parse(now.toUTCString());
-	
-	time_offset = s-l; 
+
+	time_offset = s-l;
 	Ti.App.Properties.setString('time_offset', time_offset);
 };

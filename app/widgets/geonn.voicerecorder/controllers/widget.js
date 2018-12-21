@@ -2,24 +2,30 @@ var args = arguments[0] || {};
 var timer = require(WPATH("timer"));
 var audioRecorder;
 var cancel_record = false;
-
+var recording = false;
 if(OS_ANDROID){
 	audioRecorder = require("titutorial.audiorecorder");	
 }else{
 	console.log(Ti.Media.hasAudioPermissions()+" Ti.Media.hasAudioPermissions()");
-	Titanium.Media.setAudioSessionCategory(Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD);
+	Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD;
 	audioRecorder = Titanium.Media.createAudioRecorder ({compression : Ti.Media.AUDIO_FORMAT_AAC, format: Titanium.Media.AUDIO_FILEFORMAT_MP4});
 }
 
 
 function startRecording(){
 	//$.message_bar.animate({right: 200, duration: 30});
+	console.log("startRecording "+cancel_record);
+	if(recording){
+	    return;
+	}
+	recording = true;
 	cancel_record = false;
 	timer.start($.timer);
 	$.text_area.width = Ti.UI.SIZE;
 	$.timer.show();
 	$.timer_text.show();
 	if(OS_IOS){
+	    Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD;
 		console.log('here!!!');
 		audioRecorder.start();
 	}else{
@@ -49,7 +55,9 @@ function startRecording(){
 	}
 }
 
-function stopRecording(){
+function stopRecording(e){
+    console.log("stop recording");
+    recording = false;
 	try{
 		var sec = timer.stop();
 		if(sec <= 1){
@@ -86,11 +94,19 @@ function init() {
 	$.text_area.width = 0;
 	console.log(WPATH('images/icon_mic.png'));
 	var img_mic = $.UI.create("ImageView", {image: WPATH('images/icon_mic.png'), backgroundColor:"#20243e", top: 10, bottom:10, zIndex:3, right: 10, height: 30, width: 30});
-	$.container.addEventListener("touchstart", startRecording);
-	$.container.addEventListener("touchend", stopRecording);
-	$.container.addEventListener("touchcancel",stopRecording);
+	img_mic.addEventListener("click", startRecording);
+	//$.container.addEventListener("touchend", stopRecording);
+	//$.container.addEventListener("touchcancel",stopRecording);
 	$.container.add(img_mic);
 };
+
+function testing(){
+    console.log("click liao");
+}
+
+function tesing2(){
+    console.log("ended");
+}
 
 init();
 
@@ -98,3 +114,5 @@ init();
 exports.addEventListener = $.on;
 exports.removeEventListener = $.off;
 exports.fireEvent = $.trigger; 
+exports.startRecording = startRecording;
+exports.stopRecording = stopRecording;

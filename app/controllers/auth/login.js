@@ -6,12 +6,12 @@ function do_signup(){
 	if(Ti.Platform.osname == "android"){
 	  	win.open(); //{fullscreen:false, navBarHidden: false}
 	}else{
-		Alloy.Globals.navWin.openWindow(win,{animated:true});  
+		Alloy.Globals.navWin.openWindow(win,{animated:true});
 	}
 }
 
 function onload(responseText){
-	var result = JSON.parse(responseText); 
+	var result = JSON.parse(responseText);
 	console.log(result.status);
 	if(result.status == "error"){
 		COMMON.createAlert("Error", result.data);
@@ -33,7 +33,7 @@ function onload(responseText){
 }
 
 function do_login(){
-	
+
 	var username     = $.username.value;
 	var password	 = $.password.value;
 	if(username ==""){
@@ -46,14 +46,14 @@ function do_login(){
 	}
 	var device_token = Ti.App.Properties.getString('deviceToken');
 	console.log("pluxDoctorLogin login");
-	
-	var params = { 
+
+	var params = {
 	 	device_token: device_token,
-		email: username,  
+		email: username,
 		password: password
 	};
 	console.log(params);
-	//API.doLogin(params, $); 
+	//API.doLogin(params, $);
 	loading.start();
 	API.callByPost({url: "pluxDoctorLogin", params: params}, {onload: onload});
 }
@@ -63,5 +63,12 @@ function init(){
 	$.win.add(loading.getView());
 }
 
-init();
+$.win.addEventListener("postlayout", function(){
+	console.log("postlayout");
+	if(OS_ANDROID){
+	   $.username.setSoftKeyboardOnFocus(Ti.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS);
+	}
+	$.username.focus();
+});
 
+init();

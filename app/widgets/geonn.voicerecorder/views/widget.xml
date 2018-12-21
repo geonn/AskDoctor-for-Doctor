@@ -1,8 +1,12 @@
 <Alloy>
-	<View id="container" class="wsize hsize">
-		<View class="wfill hsize" id="text_area">
-			<Label id="timer_text" class="wsize hsize" left="10" right="110" color="#fff">Recording</Label>
-			<Label id="timer" class="wsize hsize" color="#fff" right="50">0:00</Label>
+	<View id="container" class="wsize hsize horz" backgroundColor="#20243e">
+		<View class="wsize hsize horz" id="text_area">
+		    <View class='wsize' height="40" borderRadius="10" left="10" right="10" backgroundColor="#1b99e9" onClick="stopRecording">
+		        <Label class="wsize hsize" touchEnabled="false" color="#20243e" right="10" left="10">STOP</Label>
+	        </View>
+		    <View width="1" height="20" backgroundColor="#fff"></View>
+			<Label id="timer_text" class="wsize hsize" left="10" right="10" color="#fff">Recording</Label>
+			<Label id="timer" class="wsize hsize" color="#fff" left="10" right="10">0:00</Label>
 		</View>
 	</View>
 </Alloy>
