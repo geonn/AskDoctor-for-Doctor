@@ -100,27 +100,6 @@ function setCurLoc(e){
     Ti.App.Properties.setString('latitude', latitude);
 }
 
-function checkGeoLocation(){
-	if (Titanium.Geolocation.locationServicesEnabled) {
-	    Titanium.Geolocation.accuracy = Titanium.Geolocation.ACCURACY_HIGH;
-	    //Ti.Geolocation.addEventListener('location', setCurLoc);
-	    try
-		{
-	    	Titanium.Geolocation.getCurrentPosition(setCurLoc);
-	    }
-	    catch(e){
-	    	console.log(e);
-	    }
-	} else {
-		Common.createAlert("Error", "Please enable location services");
-	}
-}
-
-Titanium.App.addEventListener('resumed', function(e) {
-	checkGeoLocation();
-});
-
-
 var message_popup = false;
 
 function message_alert(e){
@@ -174,3 +153,18 @@ function currentDateTime(){
 	datetime = yyyy+'-'+mm+'-'+dd + " "+ hours+":"+minutes+":"+sec;
 	return datetime ;
 }
+
+Ti.App.addEventListener("pause", function(e){
+    console.log('alloy pause');
+    socket.disconnect();
+    redirect = true;
+});
+
+Ti.App.addEventListener("resumed", function(e){
+    console.log('alloy resume');
+    socket.connect();
+    setTimeout(function(){
+        console.log("redirect set as false");
+        redirect = false;
+    }, 2000);
+});

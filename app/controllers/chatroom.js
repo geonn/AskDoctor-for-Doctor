@@ -17,7 +17,7 @@ var opposite_online = "false";
 var opposite_last_update;
 
 Ti.App.Properties.setString('room_id', room_id);
-var voice_recorder = Alloy.createWidget('geonn.voicerecorder', {record_callback: saveLocal, loadingStart: loadingStart});
+var voice_recorder = Alloy.createWidget('geonn.voicerecorder', {record_callback: saveLocal, room_id: room_id});
 console.log("check args");
 console.log(args);
 
@@ -27,33 +27,28 @@ console.log(args);
 var sending = false;
 function SendMessage(){
     console.log(args.status+" args.status send message");
-    if(args.status == 2){
-        console.log({dr_id: dr_id, room_id: room_id, status: 5});
-        API.callByPost({url:"changeRoomStatus", params: {dr_id: dr_id, room_id: room_id, status: 5}}, {
-        onload: function(responseText){
-            console.log("change room status to 5");
-            args.status = 5;
-            $.action_button.title = "End Session";
-            $.action_button.action = "endSession";
-            //socket.fireEvent("socket:startTimer", {room_id: room_id});
-            loading.start();
-            sending = true;
-            $.message.editable = false;
-            saveLocal({message: $.message.value, format:"text"});
-            }
-        });
-    }else{
-        if($.message.value == "" || sending){
-    		return;
-    	}
-    	loading.start();
-    	sending = true;
-        $.message.editable = false;
-    	saveLocal({message: $.message.value, format:"text"});
-	}
+    if($.message.value == "" || sending){
+       return;
+    }
+    loading.start();
+    sending = true;
+    $.message.editable = false;
+    saveLocal({message: $.message.value, format:"text"});
 }
 
 function saveLocal(param){
+  if(args.status == 2){
+      console.log({dr_id: dr_id, room_id: room_id, status: 5});
+      API.callByPost({url:"changeRoomStatus", params: {dr_id: dr_id, room_id: room_id, status: 5}}, {
+      onload: function(responseText){
+          console.log("change room status to 5");
+          args.status = 5;
+          $.action_button.title = "End Session";
+          $.action_button.action = "endSession";
+          //socket.fireEvent("socket:startTimer", {room_id: room_id});
+          }
+      });
+  }
 	var model = Alloy.createCollection("conversations");
 	var app_id = Math.random().toString(36).substr(2, 10);
 	var local_save = [{
@@ -88,9 +83,11 @@ function saveLocal(param){
 	render_conversation(true, true);
 	var api_param = {dr_id: dr_id, message: param.message, is_doctor:1, is_endUser:0, u_id: args.u_id, sender_name: Ti.App.Properties.getString('name'), format: param.format, sender_id: dr_id, id: app_id, room_id: room_id };
 	if(param.format == "voice" || param.format == "photo"){
-	    loading.start();
-		_.extend(api_param, {media: param.format, Filedata: param.filedata});
+	   _.extend(api_param, {media: param.format, Filedata: param.filedata});
 	}
+  if(param.format == "photo"){
+    loading.start();
+  }
 	console.log(api_param);
 	API.callByPost({url: "sendMessage", type: param.format, params:api_param}, {onload: function(responseText){
 
@@ -215,7 +212,7 @@ function addRow(row, latest){
 			view_text_container.add(label_message2);
 			view_text_container.add(label_message);
 		}else if(row.format == "voice"){
-			var player = Alloy.createWidget('dk.napp.audioplayer', {playIcon: "\uf144", pauseIcon: "\uf28c"});
+			var player = Alloy.createWidget('dk.napp.audioplayer', {playIcon: "\uf144", pauseIcon: "\uf28c", win: $.win, room_id: room_id});
 
 			player.setUrl(newText);
 			//download_video(player, newText);
@@ -455,13 +452,6 @@ function refresh(callback, firsttime){
 var refreshing = false;
 var time_offset = COMMON.now();
 function refresh_latest(param){
-	var player = Ti.Media.createSound({url:"/sound/doorbell.wav"});
-	player.play();
-	/*if(typeof(param.admin) != "undefined"){
-		Ti.App.Properties.setString('estimate_time', "0");
-	}else{
-
-	}*/
 	if(!refreshing && time_offset < COMMON.now()){
 		refreshing = true;
 		refresh(getLatestData);
@@ -472,13 +462,6 @@ function refresh_latest(param){
 function filterFunction(collection) {
     //return collection.where({u_id:args.u_id});
 }
-
-$.chatroom.addEventListener("postlayout", function(e){
-	if(OS_ANDROID){
-		console.log("postlayout");
-		//scrollToBottom();
-	}
-});
 
 function getPreviousData(param){
 
@@ -542,11 +525,11 @@ function timeFormat(datetime){
 	if(timeStamp.length == 1){
 		newFormat = date[2]+"/"+date[1]+"/"+date[0] ;
 	}else{
-		var time = timeStamp[1].split(":");
-		if(time[0] > 12){
+	   var time = timeStamp[1].split(":");
+	   if(time[0] >= 12){
 			ampm = "pm";
 			time[0] = time[0] - 12;
-		}
+	   }
 
 		newFormat = date[2]+"/"+date[1]+"/"+date[0] + " "+ time[0]+":"+time[1]+ " "+ ampm;
 	}
@@ -562,7 +545,7 @@ function closeWindow(){
 }
 var mic = voice_recorder;
 function second_init(){
-	
+
 	$.action_btn.add(mic.getView());
 	if(OS_ANDROID){
 	    $.win.setWindowSoftInputMode(Ti.UI.Android.SOFT_INPUT_ADJUST_PAN);
@@ -872,15 +855,6 @@ function photoSuccessCallback(event) {
     console.log(" "+event.media.width+" "+event.media.height);
     console.log(new_width+" "+new_height);
     blob = blob.imageAsResized(new_width, new_height);
-    API.callByPost({url:"changeRoomStatus", params: {dr_id: dr_id, room_id: room_id, status: 5}}, {
-    onload: function(responseText){
-        console.log("change room status to 5");
-        args.status = 5;
-        $.action_button.title = "End Session";
-        $.action_button.action = "endSession";
-        //socket.fireEvent("socket:startTimer", {room_id: room_id});
-        }
-    });
     saveLocal({message: event.media.nativePath, format:"photo", filedata: blob});
 }
 
@@ -989,10 +963,23 @@ function patient_last_update(e){
     updateReadStatus();
 }
 
+function resume(){
+  console.log("resumed here chatrrom");
+  updateTime({online:true});
+  refresh_latest();
+}
+
+function pause(){
+  updateTime({online:false});
+}
+
 Ti.App.addEventListener("socket:refresh_chatroom", refresh_latest);
 Ti.App.addEventListener('conversation:refresh', refresh_latest);
 Ti.App.addEventListener("socket:user_last_update", updateReadStatus);
 Ti.App.addEventListener("socket:patient_last_update", patient_last_update);
+Ti.App.addEventListener("resumed", resume);
+Ti.App.addEventListener("paused", pause);
+
 
 $.win.addEventListener("close", function(){
     Ti.App.Properties.setString('room_id', "");
@@ -1010,52 +997,16 @@ $.win.addEventListener("close", function(){
     }
 	Ti.App.fireEvent('home:refresh');
 	socket.leave_room({room_id: room_id});
+	var folder = Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, room_id);
+    if(folder.exists()){
+        folder.deleteDirectory(true);
+    }
 	Ti.App.removeEventListener("socket:refresh_chatroom", refresh_latest);
 	Ti.App.removeEventListener('conversation:refresh', refresh_latest);
-  Ti.App.removeEventListener("socket:user_last_update", updateReadStatus);
-  Ti.App.removeEventListener("socket:patient_last_update", patient_last_update);
-  Ti.App.removeEventListener("resumed", resume);
-  Ti.App.removeEventListener("paused", pause);
+    Ti.App.removeEventListener("socket:user_last_update", updateReadStatus);
+    Ti.App.removeEventListener("socket:patient_last_update", patient_last_update);
+    Ti.App.removeEventListener("resumed", resume);
+    Ti.App.removeEventListener("paused", pause);
 	$.destroy();
 
-});
-
-function resume(){
-  socket.connect();
-  console.log("resumed here");
-  updateTime({online:true});
-  redirect = false;
-  refresh_latest();
-}
-
-function pause(){
-  socket.disconnect();
-  console.log("redirect set as true");
-  updateTime({online:false});
-  redirect = true;
-}
-
-$.win.addEventListener("open", function(){
-   if (this.activity) {
-    this.activity.onResume = function() {
-      socket.connect();
-      refresh_latest();
-      updateTime({online:true});
-      setTimeout(function(){
-          redirect = false;
-          console.log("redirect as false");
-      }, 2000);
-
-    };
-    this.activity.onPause = function() {
-      socket.disconnect();
-      console.log("redirect set as true");
-      updateTime({online:false});
-      redirect = true;
-    };
-  }
-  else {
-    Ti.App.addEventListener("resumed", resume);
-    Ti.App.addEventListener("paused", pause);
-  }
 });

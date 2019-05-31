@@ -36,16 +36,26 @@ if(args.pauseIcon){
 }
 
 function onPlayStopBtnClicked() {
-    Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_PLAYBACK;
+
 	// If both are false, playback is stopped.
 	console.log(audioPlayer.playing+" audioPlayer.playing");
 	if (audioPlayer.playing) {
 		audioPlayer.pause();
+		$.time.text = "Pause";
+		Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT;
 		$.playStopBtn.image = playIcon;
 	} else {
-		audioPlayer.play();
+		try{
+			audioPlayer.start();
+		}catch(e){
+			console.log("see what error here");
+			console.log(e);
+		}
+		$.time.text = "Playing...";
+		Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_PLAYBACK;
 		$.playStopBtn.image = pauseIcon;
 	}
+	//updateTimeLabel();
 }
 
 /**
@@ -80,6 +90,9 @@ function padLeft(nr, n, str) {
 
 function updateTimeLabel() {
 	// calc the duration - only once started
+	$.time.text = (audioPlayer.playing)?"Playing...":"";
+	return;
+
 	totalDisplayDuration = prettifyTime(getDuration() / 1000);
 
 	$.time.text = totalDisplayDuration;
@@ -87,88 +100,93 @@ function updateTimeLabel() {
 
 exports.setUrl = function(url) {
     console.log("exports setUrl");
+	var protocol = url.split('/')[0];
+	if(protocol == "file:"){
+		set_url(url);
+		return;
+	}
 	var filename = url.split('/').pop();
-	
-	if(OS_IOS){
-	    console.log('a');
-	    var file_temp = Titanium.Filesystem.getFile(Titanium.Filesystem.tempDirectory, filename);
-	}else{
-	    var audioDir = Titanium.Filesystem.getFile(Titanium.Filesystem.externalStorageDirectory, "plux");
-        var file_temp = Ti.Filesystem.getFile(audioDir.resolve(), filename);
-	} 
+	var folder = Titanium.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, args.room_id);
+	if(!folder.exists()){
+	    folder.createDirectory();
+	}
+	var file_temp = Titanium.Filesystem.getFile(folder.resolve(), filename);
 	if(file_temp.exists()){
 	    console.log('b');
 	    console.log(file_temp.nativePath+" exist");
 	    set_url(file_temp.nativePath);
 	}else{
-	    console.log('c');
-    	var file = Titanium.Filesystem.getFile(Titanium.Filesystem.applicationDataDirectory, filename);	
-    	if(file.exists()){
-    	    console.log('d');
-    	    console.log("temp file not exist but filename exist");
-    		set_url(file.nativePath);
-    	}else{
-    	    console.log('e');
-    	    console.log("local not found");
-    		var xhr = Titanium.Network.createHTTPClient({
-    			onload: function() {
-    				// first, grab a "handle" to the file where you'll store the downloaded data
-    				var f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, filename);
-    				f.write(this.responseData); // write to the file
-    				Ti.App.fireEvent('graphic_downloaded', {filepath: f.nativePath});
-    				set_url(f.nativePath);
-    			},
-    			timeout: 10000
-    		});
-    		xhr.open('GET', url);
-    		xhr.send();
-    	}
-	}
+  		var xhr = Titanium.Network.createHTTPClient({
+  			onload: function() {
+  				// first, grab a "handle" to the file where you'll store the downloaded data
+  				//var f = Ti.Filesystem.getFile(Ti.Filesystem.applicationDataDirectory, filename);
+					console.log("download the file");
+  				      file_temp.write(this.responseData); // write to the file
+					console.log(file_temp.nativePath+" exist");
+  				set_url(file_temp.nativePath);
+  			},
+  			timeout: 10000
+  		});
+  		xhr.open('GET', url);
+  		xhr.send();
+		}
 };
 
 function set_url(url){
 	console.log(url+" here url");
 	try{
 		if(OS_IOS){
-		    Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_PLAYBACK;
-			audioPlayer = Ti.Media.createSound({
-				url : url,
-				allowBackground : true
-			});
-			console.log(audioPlayer.volume+"sound volume");
-			audioPlayer.volume = 1;
-			console.log(audioPlayer.volume+"sound volume new");
-			
-		}else{
+		    Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT;
+		}/*else{
 			audioPlayer = Ti.Media.createAudioPlayer({
 				url : url,
 				allowBackground : true
 			});
-		}
+		}*/
+		audioPlayer = Ti.Media.createAudioPlayer({
+            url : url,
+            allowBackground : true
+        });
+    console.log(audioPlayer.volume+"sound volume");
+    audioPlayer.volume = 1;
+    audioPlayer.release();
+    console.log(audioPlayer.volume+"sound volume new");
 	}catch(e){
 		console.log(e.message);
-	}
-	audioPlayer.play();
+	}/*
+	audioPlayer.start();
 	audioPlayer.stop();
-	
-	console.log(audioPlayer.time+" "+audioPlayer.duration);
+	if (Ti.Platform.name === 'android'){
+			audioPlayer.release();
+	}*/
 	// new sound - update the display
-	updateTimeLabel();
-	
+	//updateTimeLabel();
+
 	// update the icon
 	$.playStopBtn.image = playIcon;
-	
+
 	audioPlayer.addEventListener('change', function(e) {
 		console.log('State: ' + e.description + ' (' + e.state + ')');
 	    Ti.API.info('State: ' + e.description + ' (' + e.state + ')');
-	    updateTimeLabel();
+	    //updateTimeLabel();
 	    if(e.state == 7){	//7 = stopped
-	    	$.playStopBtn.image = playIcon;
-	    }
+	    	  image = playIcon;
+	    }else if(e.state == 5){    //7 = stopped
+            $.time.text = "";
+            image = playIcon;
+        }else if(e.state == 2){
+			$.time.text = "Pause";
+		}else if(e.state == 3){
+			$.time.text = "Playing...";
+		}
 	});
 
 	audioPlayer.addEventListener("complete", function(e){
 		$.playStopBtn.image = playIcon;
+        audioPlayer.release();
+        console.log("audio release");
+		$.time.text = "";
+		Ti.Media.audioSessionCategory = Ti.Media.AUDIO_SESSION_CATEGORY_SOLO_AMBIENT;
 	});
 }
 
@@ -195,8 +213,10 @@ exports.dispose = function() {
 	// restore previous idle state when closed
 	Ti.App.idleTimerDisabled = idleTimer;
 };
+args.win.addEventListener("close", function(){
+});
 
 // EVENTS
 exports.addEventListener = $.on;
 exports.removeEventListener = $.off;
-exports.fireEvent = $.trigger; 
+exports.fireEvent = $.trigger;

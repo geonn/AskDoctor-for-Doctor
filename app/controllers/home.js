@@ -8,9 +8,7 @@ var start = 0;
 
 function navTo(e){
 	console.log('start from here');
-	console.log(e.source);
 	params = e.source.records;
-	console.log(params);
 	Alloy.Globals.Navigator.open("chatroom", params);
 }
 
@@ -151,7 +149,7 @@ function checkAndroidPermission(){
             });
         }
     }
-    
+
 }
 
 API.callByPost({url: "dateNow"}, {
@@ -184,8 +182,10 @@ function onDuty(e){
 	   var name = Ti.App.Properties.getString('name');
 	   socket.join_special_room({name: name, dr_id: dr_id});
 	   $.onDuty.value = status;
+	   $.lbl_onoff.text = (status)?"Duty On":"Duty Off";
 	}
 }
+
 
 function update_online_status(e){
 	var name = Ti.App.Properties.getString('name');
@@ -194,11 +194,15 @@ function update_online_status(e){
 	if(e.value){
 	    socket.join_special_room({name: name, dr_id: dr_id});
 	}else{
+	    socket.leave_special_room({name: name, dr_id: dr_id});
 		//Ti.App.fireEvent("socket:leave_special_room", {name: name, dr_id: dr_id});
 	}
+	$.lbl_onoff.text = (e.value)?"On Duty":"Off Duty";
 	var device_token = Ti.App.Properties.getString('deviceToken');
 	var u_id = Ti.App.Properties.getString('dr_id');
-	API.callByPost({url: "updateDoctorDeviceToken", params: {u_id: u_id, device_id: device_token}}, {onload: function(res){console.log(res);}});
+	API.callByPost({url: "updateDoctorDeviceToken", params: {u_id: u_id, device_id: device_token}}, {onload: function(res){
+	    console.log(res);
+	}});
 }
 
 function socket_loaded(){
@@ -211,41 +215,24 @@ function socket_loaded(){
 Ti.App.addEventListener('socket_loaded', socket_loaded);
 Ti.App.addEventListener('home:refresh',refresh);
 
+function resumed(){
+    console.log("home resume");
+    refresh();
+}
+
 $.win.addEventListener("open", function(){
-   if (this.activity) {
-    this.activity.onResume = function() {
-      socket.connect();
-      refresh();
-      setTimeout(function(){
-          redirect = false;
-          console.log("redirect as false");
-      }, 2000);
-    };
-    this.activity.onPause = function() {
-      socket.disconnect();
-      console.log("redirect set as true");
-      redirect = true;
-    };
-  }else {
-    Ti.App.addEventListener("resumed", function() {
-        console.log("app resume");
-        socket.connect();
-        refresh();
-    });
-  }
-});
-
-$.win.addEventListener("postlayout", function(){
    var PUSH = require('push');
-    PUSH.registerPush(); 
+   PUSH.registerPush();
 });
 
+Ti.App.addEventListener("resumed", resumed);
 Ti.App.addEventListener("doctor:refresh_patient_list", refresh);
 Ti.App.addEventListener("controller:getDoctorList", onDuty);
 
 $.win.addEventListener("close", function(){
-	Ti.App.removeEventListener("doctor:getDoctorList");
-	Ti.App.removeEventListener("doctor:refresh_patient_list");
+    Ti.App.removeEventListener("resumed", resumed);
+	Ti.App.removeEventListener("doctor:getDoctorList", onDuty);
+	Ti.App.removeEventListener("doctor:refresh_patient_list", refresh);
 	/*Ti.App.removeEventListener('home:refresh',refresh);
 	Ti.App.removeEventListener('home:init',init);*/
 	$.destroy();

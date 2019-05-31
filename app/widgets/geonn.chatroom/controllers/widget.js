@@ -7,7 +7,6 @@ if(OS_ANDROID){
 	audioRecorder = require("titutorial.audiorecorder");	
 }else{
 	console.log(Ti.Media.hasAudioPermissions()+" Ti.Media.hasAudioPermissions()");
-	Titanium.Media.setAudioSessionCategory(Ti.Media.AUDIO_SESSION_CATEGORY_PLAY_AND_RECORD);
 	audioRecorder = Titanium.Media.createAudioRecorder ({compression : Ti.Media.AUDIO_FORMAT_AAC, format: Titanium.Media.AUDIO_FILEFORMAT_MP4});
 }
 
@@ -33,7 +32,7 @@ function startRecording(){
 					//alert("success => " + e.filePath);
 					console.log("response is => " + JSON.stringify(e));
 			
-					var audioDir = Titanium.Filesystem.getFile(Titanium.Filesystem.externalStorageDirectory, "plux");
+					var audioDir = Titanium.Filesystem.getFile(Titanium.Filesystem.tempDirectory);
 					var audioFile = Ti.Filesystem.getFile(audioDir.resolve(), e.fileName);
 					console.log("audioFile.nativePath = " + audioFile.nativePath);
 					if(!cancel_record){

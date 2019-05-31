@@ -1,5 +1,4 @@
 <Alloy>
-	<Collection src="conversations"/>
 	<Window id="win" title="Home">
 	    <ScrollView class="wfill hfill contwfill conthsize" id="scrollview">
 	        <View class="wfill hfill vert" top="0">
@@ -11,7 +10,7 @@
     	    	</ScrollView>
     	    	</View>
 	    	</View>
-	    	<Button class="button" onTouchstart="changeBg" onTouchend="changeBg" onClick="doAction" id="action_button" top="10" backgroundColor="#00c8a9">End Session</Button>
+	    	<Button class="button" onClick="doAction" id="action_button" top="10" backgroundColor="#00c8a9">End Session</Button>
 	    	<View class="wfill vert hsize" bottom="0" >
 	    		<View backgroundColor="#20243e" class="wfill" height="50" bottom="0" id='bottom_bar'>
 			    	<ImageView backgroundColor="#20243e" image="/images/icons/icon_photo_camera.png" top="15" bottom="10" zIndex="3" left="10" height="30" width="30" onClick="popCamera"></ImageView>

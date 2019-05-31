@@ -1,0 +1,18 @@
+#
+# this is your module manifest and used by Titanium
+# during compilation, packaging, distribution, etc.
+#
+version: 1.0
+apiversion: 2
+architectures: armv7 arm64 i386 x86_64
+description: socket_io
+author: Miku
+license: Specify your license
+copyright: geonn solution sdn bhd
+
+# these should not be edited
+name: socket_io
+moduleid: com.geonn.socketio
+guid: c1a51b4b-6e38-4663-8ca7-f7ad606f1241
+platform: iphone
+minsdk: 8.0.0.GA

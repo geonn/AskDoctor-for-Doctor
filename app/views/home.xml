@@ -6,7 +6,8 @@
     		<ImageView image="/images/icons/more_btn.png" width="40" onClick="popMore"></ImageView>
     		<Label class="hsize h3" left="10" width="60%" id="doctor_name"></Label>
     		<View class="wfill hsize">
-    			<Switch right="0" class="wsize hsize" id="onDuty" onChange="update_online_status" value="true"/>
+    		    <Label right="0" bottom="0" class="wsize hsize" id="lbl_onoff">On Duty</Label>
+    			<Switch right="0" bottom="20" class="wsize hsize" id="onDuty" onChange="update_online_status" value="true"/>
     		</View>
     	</View>
     	<TableView onClick="navTo" id="tbl" filterAttribute="id" backgroundColor="#a02532">

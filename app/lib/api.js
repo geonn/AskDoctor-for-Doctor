@@ -6,7 +6,7 @@ var API_DOMAIN = "plux.freejini.com.my";
 var USER  = 'freejini';
 var KEY   = '06b53047cf294f7207789ff5293ad2dc';
 
-//API that call in sequence 
+//API that call in sequence
 var APILoadingList = [
 	{url: "dateNow", type: "api_function", method: "sync_server_time"},
 	{url: "getMessage", type: "api_model", model: "room", checkId: "0", params: {is_doctor: 1}},
@@ -24,17 +24,17 @@ exports.loadAPIBySequence = function (e){ //counter,
 		console.log("fired?");
 		return false;
 	}
-	
+
 	var api = APILoadingList[counter];
-	var checker = Alloy.createCollection('updateChecker'); 
+	var checker = Alloy.createCollection('updateChecker');
 	var isUpdate = checker.getCheckerById(api['checkId']);
 	var dr_id = Ti.App.Properties.getString('dr_id');
 	var params = {dr_id: dr_id};
-	
+
 	if(isUpdate != "" && last_update_on){
 		params = _.extend(params,  {last_updated: isUpdate.updated});
 	}
-	
+
 	params = _.extend(params,  api['params']);
 	console.log("check here");
 	console.log(params);
@@ -49,7 +49,7 @@ exports.loadAPIBySequence = function (e){ //counter,
 				eval("_.isFunction("+api['method']+") && "+api['method']+"(responseText)");
 			}else if(api['type'] == "api_model"){
 				var res = JSON.parse(responseText);
-				var arr = res.data; 
+				var arr = res.data;
 		       	var model = Alloy.createCollection(api['model']);
 		        model.saveArray(arr);
 		        checker.updateModule(APILoadingList[counter]['checkId'],APILoadingList[counter]['model'], res.last_updated, dr_id);
@@ -68,16 +68,16 @@ exports.loadAPIBySequence = function (e){ //counter,
 
 // call API by post method
 exports.callByPost = function(e, handler){
-	
+
 	var url = "https://"+API_DOMAIN+"/api/"+e.url+"?user="+USER+"&key="+KEY;
 	console.log(url);
 	console.log(e.params);
 	if(e.type == "voice"){
-		var _result = contactServerByPostVideo(url, e.params || {});  
+		var _result = contactServerByPostVideo(url, e.params || {});
 	}else{
-		var _result = contactServerByPost(url, e.params || {});  
+		var _result = contactServerByPost(url, e.params || {});
 	}
-	_result.onload = function(ex) {  
+	_result.onload = function(ex) {
 		console.log(this.responseText);
 		try{
 			JSON.parse(this.responseText);
@@ -89,9 +89,9 @@ exports.callByPost = function(e, handler){
 			COMMON.createAlert("Error", e.message, handler.onexception);
 			return;
 		}
-		_.isFunction(handler.onload) && handler.onload(this.responseText); 
+		_.isFunction(handler.onload) && handler.onload(this.responseText);
 	};
-	
+
 	_result.onerror = function(ex) {
 		//-1001	The request timed out.
 		if(ex.code == "-1009"){		//The Internet connection appears to be offline.
@@ -118,25 +118,25 @@ exports.callByPost = function(e, handler){
 		    console.log(ex);
 		    COMMON.createAlert("Error", ex.error, handler.onerror);
 		}
-		
+
 		/*
 		*/
 	};
 };
 
 // call API by post method
-exports.callByPostImage = function(e, onload, onerror) { 
+exports.callByPostImage = function(e, onload, onerror) {
 	var client = Ti.Network.createHTTPClient({
 		timeout : 5000
 	});
 	var url = eval(e.url);
 	var _result = contactServerByPostImage(url, e.params || {});
-	_result.onload = function(e) { 
+	_result.onload = function(e) {
 		console.log('success');
-		onload && onload(this.responseText); 
+		onload && onload(this.responseText);
 	};
-	
-	_result.onerror = function(ex) { 
+
+	_result.onerror = function(ex) {
 		console.log("onerror");
 		API.callByPostImage(e, onload);
 		//onerror && onerror();
@@ -162,53 +162,53 @@ function sync_server_time(responseText){
 	}
 }
 
-function contactServerByGet(url) { 
+function contactServerByGet(url) {
 	var client = Ti.Network.createHTTPClient({
 		timeout : 30000
 	});
 	client.open("GET", url);
-	client.send(); 
+	client.send();
 	return client;
 };
 
-function contactServerByPost(url,records) { 
+function contactServerByPost(url,records) {
 	var client = Ti.Network.createHTTPClient({
 		timeout : 30000
 	});
 	/*if(OS_ANDROID){
-	 	client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded'); 
+	 	client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	 }*/
 	client.open("POST", url);
 	client.send(records);
 	return client;
 };
 
-function contactServerByPostVideo(url,params) { 
+function contactServerByPostVideo(url,params) {
 	var client = Ti.Network.createHTTPClient({
 		timeout : 50000
 	});
-	 
-	//client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');  
+
+	//client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	client.open("POST", url);
 	client.onsendstream = function(e) {
-	    console.log( Math.floor(e.progress * 100) + "%");
+	    //console.log( Math.floor(e.progress * 100) + "%");
 	};
-	client.send(params); 
+	client.send(params);
 	return client;
 };
 
 
-function contactServerByPostImage(url, records) { 
+function contactServerByPostImage(url, records) {
 	var client = Ti.Network.createHTTPClient({
 		timeout : 30000
 	});
-	client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');  
+	client.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 	client.open("POST", url);
-	client.send(records); 
+	client.send(records);
 	return client;
 };
 
-function onErrorCallback(e) { 
+function onErrorCallback(e) {
 	// Handle your errors in here
 	COMMON.createAlert("Error", e);
 };

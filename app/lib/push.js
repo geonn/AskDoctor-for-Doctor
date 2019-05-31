@@ -137,22 +137,7 @@ function registerPush(){
 			callback:receivePush
 		});
 	}
-
 }
-
-Ti.App.addEventListener("pause", function(e){
-	console.log('sleep');
-	socket.disconnect();
-	redirect = true;
-});
-
-Ti.App.addEventListener("resumed", function(e){
-	console.log('resume');
-	setTimeout(function(){
-	    console.log("redirect set as false");
-        redirect = false;
-    }, 2000);
-});
 
 exports.setInApp = function(){
 	console.log('In App');

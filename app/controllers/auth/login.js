@@ -63,12 +63,11 @@ function init(){
 	$.win.add(loading.getView());
 }
 
-$.win.addEventListener("postlayout", function(){
-	console.log("postlayout");
+$.win.addEventListener("open", function(){
+	console.log("open");
 	if(OS_ANDROID){
-	   $.username.setSoftKeyboardOnFocus(Ti.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS);
+	   $.win.setSoftKeyboardOnFocus(Ti.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS);
 	}
-	$.username.focus();
 });
 
 init();

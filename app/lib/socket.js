@@ -16,7 +16,7 @@ function doConnect(){
         if(room_id > 0){
             console.log('new_set_room2'+room_id);
             //socket_io.emit((OS_IOS)?'new_set_room':"set_room", room_id);
-            socket_io.emit((OS_IOS)?'new_set_room2':"set_room2", {room_id: room_id, role: "doctor", u_id: dr_id, last_update: COMMON.now(), online: true});
+            socket_io.emit((OS_IOS)?'set_room2':"set_room2", {room_id: room_id, role: "doctor", u_id: dr_id, last_update: COMMON.now(), online: true});
         }
         socket_io.emit('new_set_room', "doctor");
     });
@@ -106,7 +106,7 @@ function update_room_member_time(ex){
     console.log(isConnected+" update_room_member_time");
     if(isConnected){
         console.log({id: socket_io.id, role: "doctor", last_update: ex.last_update, u_id: ex.u_id, room_id: ex.room_id, online: ex.online});
-        socket_io.emit((OS_IOS)?'new_update_room_member_time':"update_room_member_time", {id: socket_io.id, last_update: ex.last_update, u_id: ex.u_id, room_id: ex.room_id, online: ex.online, role: "doctor",});
+        socket_io.emit((OS_IOS)?'update_room_member_time':"update_room_member_time", {id: socket_io.id, last_update: ex.last_update, u_id: ex.u_id, room_id: ex.room_id, online: ex.online, role: "doctor",});
     }else{
         doConnect();
         setTimeout(function(){update_room_member_time(ex);}, 1000);
@@ -118,7 +118,7 @@ exports.join_special_room = join_special_room;
 function join_special_room(ex){
     console.log(isConnected+" join_special_room");
     if(isConnected){
-        socket_io.emit((OS_IOS)?'new_join_special_room':"join_special_room", {id: socket_io.id, name: ex.name, dr_id: ex.dr_id, room: 'doctor'});
+        socket_io.emit((OS_IOS)?'join_special_room':"join_special_room", {id: socket_io.id, name: ex.name, dr_id: ex.dr_id, room: 'doctor'});
         console.log({id: socket_io.id, name: ex.name, dr_id: ex.dr_id, room: 'doctor'});
     }else{
         doConnect();
@@ -131,7 +131,7 @@ exports.leave_special_room = leave_special_room;
 function leave_special_room(ex){
     console.log(isConnected+" leave_special_room");
     if(isConnected){
-        socket_io.emit((OS_IOS)?'new_leave_special_room':"leave_special_room", {id: socket_io.id, name: ex.name, dr_id: ex.dr_id, room: 'doctor'});
+        socket_io.emit((OS_IOS)?'leave_special_room':"leave_special_room", {id: socket_io.id, name: ex.name, dr_id: ex.dr_id, room: 'doctor'});
         console.log({id: socket_io.id, name: ex.name, dr_id: ex.dr_id, room: 'doctor'});
     }else{
         doConnect();
@@ -146,7 +146,7 @@ function setRoom(ex){
     room_id = ex.room_id;
     var dr_id = Ti.App.Properties.getString('dr_id') || 0;
     if(isConnected){
-        socket_io.emit((OS_IOS)?'new_set_room2':"set_room2", {room_id: ex.room_id, role: "doctor", u_id: dr_id, last_update: COMMON.now(), online: true});
+        socket_io.emit((OS_IOS)?'set_room2':"set_room2", {room_id: ex.room_id, role: "doctor", u_id: dr_id, last_update: COMMON.now(), online: true});
         console.log("set_room "+ex.room_id);
     }else{
         doConnect();
@@ -171,7 +171,7 @@ exports.sendMessage = sendMessage;
 function sendMessage(ex){
     console.log(isConnected+" sendMessage");
     if(isConnected){
-        socket_io.emit((OS_IOS)?'new_socket:refresh_chatroom':"socket:refresh_chatroom", ex.room_id, false);
+        socket_io.emit((OS_IOS)?'socket:refresh_chatroom':"socket:refresh_chatroom", ex.room_id, false);
         console.log("sendMessage at room "+ex.room_id);
     }else{
         doConnect();
@@ -184,7 +184,7 @@ exports.leave_room = leave_room;
 function leave_room(ex){
     console.log(isConnected+" leave_room");
     if(isConnected){
-        socket_io.emit((OS_IOS)?'new_leave_room':"leave_room", ex.room_id);
+        socket_io.emit((OS_IOS)?'leave_room':"leave_room", ex.room_id);
         console.log("leave_room "+ex.room_id);
     }else{
         doConnect();
