@@ -1,20 +1,30 @@
 <Alloy>
-	<Window title="Register" id='signUpWin' navBarHidden="false">
-		<ActionBar platform="android" displayHomeAsUp="true" onHomeIconItemSelected="closeWindow" />
-		<ScrollView class="wfill hfill vert" backgroundImage="/images/home_background.jpg" scrollType="vertical">
-			<View class="padding wfill hsize box" backgroundColor="#ffffff">
-				<View class="padding wfill hsize vert">
-					<Label class="h5 wfill hsize bold">Please upload your photo</Label>
-					<ImageView id="item_image" onClick="loadPhoto" image="/images/icons/icon_take_photo_nobg.png" top="10" width="50%" />
-				</View>
-			</View>
-			<TextField color="#000000" id="fullname" hintText="Fullname"></TextField>
-			<TextField color="#000000" id="mobile" hintText="Mobile Number"></TextField>
-			<TextField color="#000000" id="email" hintText="Email Address"></TextField>
-			<TextField color="#000000" id="username" hintText="Username"></TextField>
-			<TextField color="#000000" id="password" hintText="Password" passwordMask="true"></TextField>
-			<TextField color="#000000" id="confirm" hintText="Confirm Password" passwordMask="true"></TextField>
-			<Button onClick="doRegister" backgroundColor="#5375BD" class="button" title="Register"></Button>
-		</ScrollView>
-	</Window>
+	<Window id="win" title="SignUp" navBarHidden="true" fullscreen="false">
+	<ScrollView class='vert hfill wfill conthsize contwfill' id="forms">
+		<ImageView image="/images/appicon.png" top="40" width="50%" ignore="1" />
+		<View backgroundColor="#fba81c" id="name" value="" class="wfill hsize padding rounded" top="0" top="40">
+            <TextField maxLength="30" hintText="Name *" onChange="textFieldOnBlur" required="1" left="5" top="0" right="0" value=""></TextField>
+        </View>
+        <View backgroundColor="#fba81c" id="email" value="" class="wfill hsize padding rounded" top="0">
+            <TextField maxLength="30" hintText="Email *" onChange="textFieldOnBlur" required="1" left="5" top="0" right="0"value=""></TextField>
+        </View>
+        <View backgroundColor="#fba81c" id="mobile" value="" class="wfill hsize padding rounded" top="0">
+            <TextField maxLength="30" hintText="Mobile" keyboardType="Titanium.UI.KEYBOARD_TYPE_PHONE_PAD" onChange="textFieldOnBlur" required="0" left="5" top="0" right="0"value=""></TextField>
+        </View>
+        <View backgroundColor="#fba81c" id="specialty" value="" class="wfill hsize padding rounded" top="0">
+            <TextField maxLength="30" hintText="Specialty" onChange="textFieldOnBlur" required="0" left="5" top="0" right="0"value=""></TextField>
+        </View>
+        <View backgroundColor="#fba81c" id="qualification" value="" class="wfill hsize padding rounded" top="0">
+            <TextField maxLength="30" hintText="Qualification" onChange="textFieldOnBlur" required="0" left="5" top="0" right="0"value=""></TextField>
+        </View>
+        <View backgroundColor="#fba81c" id="password" value="" class="wfill hsize padding rounded" top="0">
+            <TextField maxLength="30" passwordMask="true" hintText="Password *" onChange="textFieldOnBlur" required="1" left="5" top="0" right="0"value=""></TextField>
+        </View>
+        <View backgroundColor="#fba81c" id="password2" value="" class="wfill hsize padding rounded" top="0">
+            <TextField maxLength="30" passwordMask="true" hintText="Confirm Password *" onChange="textFieldOnBlur" required="1" left="5" top="0" right="0"value=""></TextField>
+        </View>
+		<Button class="button" onClick="doSubmit" title="Sign Up" />
+		<Button onClick="closeWindow" class="button" title="Cancel" bottom="40"/>
+	</ScrollView>
+    </Window>
 </Alloy>

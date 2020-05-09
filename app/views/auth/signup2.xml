@@ -1,0 +1,14 @@
+<Alloy>
+	<Window id="win" title="SignUp" navBarHidden="true" fullscreen="false">
+	<ScrollView class='vert hfill wfill conthsize contwfill' id="forms">
+		<ImageView image="/images/appicon.png" top="40" width="50%" ignore="1" />
+		<View id="apc" class='wfill hsize vert padding rounded' backgroundColor="#ffffff" format="photo" hintText="Recepit" attached="0" required="1">
+            
+            <Label class="wfill hsize h5" color='#000000' top="10" left="10" touchEnabled="false">Please attach your APC *</Label>
+            <View class="wfill" height="1" backgroundColor="#ccc" top="10" left="10" right="10"></View>
+           	<Widget id="camera" src="com.geonn.camera" />
+        </View>
+		<Button class="button" onClick="doSubmit" title="Submit" />
+	</ScrollView>
+    </Window>
+</Alloy>

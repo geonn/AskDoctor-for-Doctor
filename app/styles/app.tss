@@ -21,6 +21,15 @@ overrode the settings with other TSS, XML, or JS settings:
 
 */
 
+".hide":{
+	visible: false
+}
+
+".table_blank":{
+	separatorStyle: "none",
+	selectionStyle: "none",
+}
+
 'Label': {
 	color: '#ffffff',
 	width: Ti.UI.FILL,
@@ -52,10 +61,19 @@ overrode the settings with other TSS, XML, or JS settings:
     modal: false, // make android windows all heavyweight
     fullscreen: false,
 },
-
+'Window[platform=ios]':{
+	extendSafeArea: false,
+	backgroundColor :"#20243e"
+		
+},
+'TextArea':{
+	color: "#000000"
+}
 'TextField[platform=ios]': {
 	height: 40,
 	backgroundColor: "#ffffff",
+	color: "#000000",
+	hintTextColor: "#aaa",
 	borderStyle: Ti.UI.INPUT_BORDERSTYLE_ROUNDED,
 	left: 10,
 	right: 10,

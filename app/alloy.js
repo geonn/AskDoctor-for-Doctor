@@ -10,13 +10,12 @@
 //
 // Alloy.Globals.someGlobalFunction = function(){};
 
-var _ = require('underscore')._;
+var _ = require('alloy/underscore')._;
 var API = require('api');
 var redirect = true;
 var COMMON = require('common');
 var DBVersionControl = require('DBVersionControl');
 var socket = require('socket');
-
 var last_update_on = true;
 var room_id = 0;
 DBVersionControl.checkAndUpdate();
@@ -153,18 +152,23 @@ function currentDateTime(){
 	datetime = yyyy+'-'+mm+'-'+dd + " "+ hours+":"+minutes+":"+sec;
 	return datetime ;
 }
-
+var timer ;
 Ti.App.addEventListener("pause", function(e){
     console.log('alloy pause');
-    socket.disconnect();
+    timer = setTimeout(function(){
+    	socket.disconnect();
+    }, 3000);	
     redirect = true;
 });
 
 Ti.App.addEventListener("resumed", function(e){
     console.log('alloy resume');
-    socket.connect();
+    clearTimeout(timer);
     setTimeout(function(){
         console.log("redirect set as false");
         redirect = false;
     }, 2000);
 });
+
+Alloy.Globals.mocx = require("mocx");
+Alloy.Globals.mocx.createCollection("chats", []);

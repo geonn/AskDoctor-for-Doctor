@@ -1,6 +1,7 @@
 var Cloud = require('ti.cloud');
 var app_status;
 var CloudPush;
+var channelId = 'sound';
 Ti.App.Properties.setString('room_id', "");
 if(Ti.Platform.osname == "android"){
 	CloudPush = require('ti.cloudpush');
@@ -27,6 +28,12 @@ if(Ti.Platform.osname == "android"){
 		console.log('Tray Click Focused App (app was already running)');
 		//receivePush(payload);
 	});
+	var channel = Ti.Android.NotificationManager.createNotificationChannel({
+        id: channelId,
+        name: 'Chat Notification New',
+        sound: Ti.Filesystem.resRawDirectory + 'ding.wav',
+        importance: Ti.Android.IMPORTANCE_HIGH,
+    });
 }
 
 function getNotificationNumber(payload){
@@ -44,7 +51,7 @@ function receivePush(e) {
 			var params = {u_id:e.data.u_id, dr_id:e.data.dr_id, room_id:e.data.room_id, status: e.data.status};
 			console.log(room_id+" room_id "+e.room_id+" "+local_redirect);
 			if(room_id != e.data.room_id && local_redirect){
-				Alloy.Globals.Navigator.open("chatroom", params);
+				//Alloy.Globals.Navigator.open("chatroom", params);
 			}else{
 				Ti.App.fireEvent("home:refresh");
 				Ti.App.fireEvent("conversation:refresh");
@@ -56,7 +63,7 @@ function receivePush(e) {
 			//alert(room_id+" !="+ e.room_id+" "+local_redirect);
 			console.log(room_id+" room_id "+e.room_id+" "+local_redirect);
 			if(room_id != e.room_id && local_redirect){
-				Alloy.Globals.Navigator.open("chatroom", params);
+				//Alloy.Globals.Navigator.open("chatroom", params);
 			}else{
 			    console.log("refresh home wor");
 				Ti.App.fireEvent("home:refresh");
@@ -74,9 +81,8 @@ function receivePush(e) {
 function deviceTokenSuccess(ex) {
 	console.log("deviceTokenSuccess");
     deviceToken = ex.deviceToken;
-
 	Cloud.PushNotifications.subscribeToken({
-	    channel: 'general',
+	    channel: channelId,
 	    type:Ti.Platform.name == 'android' ? 'android' : 'ios',
 	    device_token: deviceToken
 	}, function (sub) {

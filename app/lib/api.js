@@ -36,10 +36,7 @@ exports.loadAPIBySequence = function (e){ //counter,
 	}
 
 	params = _.extend(params,  api['params']);
-	console.log("check here");
-	console.log(params);
 	var url = api['url'];
-	console.log(url);
 	API.callByPost({
 		url: url,
 		params: params
@@ -70,15 +67,12 @@ exports.loadAPIBySequence = function (e){ //counter,
 exports.callByPost = function(e, handler){
 
 	var url = "https://"+API_DOMAIN+"/api/"+e.url+"?user="+USER+"&key="+KEY;
-	console.log(url);
-	console.log(e.params);
 	if(e.type == "voice"){
 		var _result = contactServerByPostVideo(url, e.params || {});
 	}else{
 		var _result = contactServerByPost(url, e.params || {});
 	}
 	_result.onload = function(ex) {
-		console.log(this.responseText);
 		try{
 			JSON.parse(this.responseText);
 		}

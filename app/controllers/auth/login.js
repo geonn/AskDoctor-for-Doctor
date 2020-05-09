@@ -6,7 +6,7 @@ function do_signup(){
 	if(Ti.Platform.osname == "android"){
 	  	win.open(); //{fullscreen:false, navBarHidden: false}
 	}else{
-		Alloy.Globals.navWin.openWindow(win,{animated:true});
+		win.open();
 	}
 }
 
@@ -22,11 +22,16 @@ function onload(responseText){
 		var arr = result.data;
 		console.log(arr.doctor_id+" arr.doctor_id");
    		Ti.App.Properties.setString('dr_id', arr.doctor_id);
-   		Ti.App.Properties.setString('specialty', arr.specialty);
-   		Ti.App.Properties.setString('clinic_id', arr.clinic_id);
-   		Ti.App.Properties.setString('name', arr.name);
+   		_.each(arr, function(value, key){
+   			console.log(key+" = "+value);
+            Ti.App.Properties.setString(key, value);
+        }); 
+   		//Ti.App.Properties.setString('specialty', arr.specialty);
+   		//Ti.App.Properties.setString('clinic_id', arr.clinic_id);
+   		//Ti.App.Properties.setString('name', arr.name);
+			socket.join_special_room({name: arr.name, dr_id: arr.doctor_id});
    		console.log(arr.name+" arr.name");
-   		Ti.App.fireEvent("app:_callback");
+   		Ti.App.fireEvent("app:_callback", {from: "login"});
 		$.win.close();
 		//Alloy.Globals.Navigator.navGroup.open({navBarHidden: true, fullscreen: false});
 	}
@@ -63,11 +68,23 @@ function init(){
 	$.win.add(loading.getView());
 }
 
+function closeWindow(){
+	$.win.close();
+}
+
+Ti.App.addEventListener("closeWindow", closeWindow);
+
 $.win.addEventListener("open", function(){
 	console.log("open");
 	if(OS_ANDROID){
 	   $.win.setSoftKeyboardOnFocus(Ti.UI.Android.SOFT_KEYBOARD_SHOW_ON_FOCUS);
 	}
+});
+
+$.win.addEventListener("close", function(){
+	console.log("close");
+	Ti.App.removeEventListener("closeWindow", closeWindow);
+
 });
 
 init();

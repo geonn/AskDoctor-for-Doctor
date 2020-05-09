@@ -4,7 +4,8 @@
 			<ImageView image="/images/appicon.png" top="80" width="50%" />
 			<TextField id="username" hintText="Email" top="80"></TextField>
 			<TextField id="password" hintText="Password" passwordMask="true"></TextField>
-			<Button onClick="do_login" bottom="20" class="button" title="Sign In"></Button>
+			<Button onClick="do_login" class="button" title="Sign In"></Button>
+			<Button onClick="do_signup" bottom="20" class="button" title="SignUp"></Button>
 		</ScrollView>
 	</Window>
 	<Window title="Ask Doctor" color="#ffffff" id="win" platform="android" windowSoftInputMode="softKeyboardOnFocus">
@@ -17,6 +18,7 @@
 			<TextField id="username" top="80" hintText="Username"></TextField>
 			<TextField id="password" hintText="Password" passwordMask="true"></TextField>
 			<Button onClick="do_login" class="button" title="Sign In"></Button>
+			<Button onClick="do_signup" class="button" title="SignUp"></Button>
 		</ScrollView>
 	</Window>
 </Alloy>

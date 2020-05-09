@@ -68,8 +68,7 @@ exports.createAlert = _.throttle(createAlert, 500, true);
 exports.dialogTextfield = _.throttle(dialogTextfield, 500, true);
 
 exports.now = function(){
-    console.log("now function");
-    console.log(Date.now()+" "+time_offset);
+    
 	var today = new Date(Date.now()+parseInt(time_offset));
 	var dd = today.getDate();
 	var mm = today.getMonth()+1;

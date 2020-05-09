@@ -5,9 +5,34 @@ var room_status = ["","Pending","Seat in", "Conversation ended", "Waiting for Do
 var anchor = COMMON.now();
 var last_update = COMMON.now();
 var start = 0;
+var home = true;
+//var u_id = Ti.App.Properties.getString('dr_id');
+console.log("inithome = true");
+var PUSH = require('enablePush');
+PUSH.loginUser({callback: function(){
+	PUSH.pushNotification(receivedPush);
+}});
+
+if(OS_IOS){
+	Ti.UI.iOS.setAppBadge(0);	
+}
+
+
+
+function receivedPush(){
+	var sound = Titanium.Media.createSound({
+	    url: "/sound/ding.mp3",
+	    preload: true
+	});
+	if(home){
+		console.log("home ding");
+		sound.play();
+	}
+}
 
 function navTo(e){
-	console.log('start from here');
+	console.log('navTohome = false');
+	home = false;
 	params = e.source.records;
 	Alloy.Globals.Navigator.open("chatroom", params);
 }
@@ -25,6 +50,7 @@ function doLogout(){
     var temp_deviceToken = Ti.App.Properties.getString('deviceToken') || '';
     Ti.App.Properties.removeAllProperties();
     Ti.App.Properties.setString('deviceToken', temp_deviceToken);
+    PUSH.logoutUser();
     API.callByPost({url: "doLogoutDoctor", params: {dr_id: dr_id}}, {onload: function(){
         var win = Alloy.createController("auth/login").getView();
         win.open();
@@ -34,9 +60,8 @@ function doLogout(){
 
 function getPreviousData(param){
 	var model = Alloy.createCollection("room");
-	console.log("before get user data?");
+	
 	data = model.getUserData();
-	console.log(data);
 }
 
 function render_list(){
@@ -45,13 +70,13 @@ function render_list(){
 	for (var i=0; i < data.length; i++) {
 		var message = data[i].message;
 		if (data[i].format == "text") {
-			message = data[i].message;
+			message = data[i].message.replace(/\[br\]/ig, "\r\n");
 		}else{
 			message = data[i].format;
 		};
 		var row = $.UI.create("TableViewRow", {records: data[i], backgroundColor:"#a02532", color: "transparent", id: data[i].sender_name+" "+data[i].patient_name+" "+message});
 		var view_main = $.UI.create("View", {touchEnabled:false, classes:['wfill','hsize','horz']});
-		var view_left = $.UI.create("View", {touchEnabled:false, classes:['hsize','vert'],top:10, left:0, bottom:5, width: "60%"});
+		var view_left = $.UI.create("View", {touchEnabled:false, classes:['hsize','vert'],top:10, left:0, bottom:5, width: "60%", height: 60});
 		var dr_name_title = (data[i].dr_name != "")?data[i].dr_name:"No one";
 		var status_view = $.UI.create("View", {touchEnabled:false, classes:['hsize', 'vert'], width: "49%"});
 		var sitin_view = $.UI.create("View", {touchEnabled:false, classes:['hsize', 'vert'], width: "49%"});
@@ -62,7 +87,7 @@ function render_list(){
 		var label_user = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h5','bold'], left:10, text: data[i].patient_name});
 		var label_last_user = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h5'], text: data[i].sender_name});
 		var last_sender_title = (data[i].last_sender == Ti.App.Properties.getString('name'))?"You":data[i].last_sender;
-		var label_last_message = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h6'], left:10, text: last_sender_title+": "+message.replace("[br]", "\r\n")});
+		var label_last_message = $.UI.create("Label", {touchEnabled:false, classes:['wfill','hsize','h6'], left:10, text: last_sender_title+": "+message});
 		var view_right = $.UI.create("View", {touchEnabled:false, classes:['hsize'],top:10, right:0, width: "30%", bottom:5});
 		var label_time = $.UI.create("Label", {touchEnabled:false, classes:['wsize','hsize','h6'], right: 10, minimumFontSize:8, textAlign: "right", right:0, text: moment(data[i].created).fromNow()});
 		var view_hr = $.UI.create("View", {classes:['wfill', 'padding'], top:0, backgroundColor: "#ccc", height: 1});
@@ -85,7 +110,25 @@ function render_list(){
 	$.tbl.setData(setData);
 }
 
-function refresh(){
+function refresh(e){
+	if(e.from != "resumed" && typeof(e.from) != "undefined"){
+		console.log(e.from+" home = true");
+		home = true;
+	}else{
+		socket.checkOnline({});
+	}
+	if(typeof(e) != "undefined"){
+		if(e.from == "login"){
+			$.onDuty.value = 1;
+			$.lbl_onoff.text = "Duty On";
+			var channel = Ti.App.Properties.getString('category')||"";
+		    if(channel == ""){
+		     doLogout();
+		    }else{
+			 PUSH.subscribeToChannel(channel);
+		    }
+		}
+	}
     $.doctor_name.text = Ti.App.Properties.getString('name');
 	loading.start();
 	var checker = Alloy.createCollection('updateChecker');
@@ -93,14 +136,14 @@ function refresh(){
 	var isUpdate = checker.getCheckerById(0, dr_id);
 	var last_updated = isUpdate.updated || "";
 	last_update = last_updated;
-	console.log({dr_id: dr_id});
+	
 	API.callByPost({url:"getMessageListForDoctor", params: {dr_id: dr_id}},
 		{onload: function(responseText){
 			var model = Alloy.createCollection("room");
 			var res = JSON.parse(responseText);
 			var arr = res.data || undefined;
 			if(res.status == "success"){
-				console.log(res.last_updated+" res.last_updated");
+				
 				//model.saveArray(arr);
 				//checker.updateModule(0, "getMessage", res.last_updated, dr_id);
 				//getPreviousData();
@@ -131,13 +174,13 @@ function popMore(){
 }
 
 function init(){
-	console.log("init");
+	
 	socket_loaded();
 	$.win.add(loading.getView());
 	var AppVersionControl = require('AppVersionControl');
 	$.doctor_name.text = Ti.App.Properties.getString('name');
     checkAndroidPermission();
-	//AppVersionControl.checkAndUpdate();
+	AppVersionControl.checkAndUpdate();
 }
 
 function checkAndroidPermission(){
@@ -145,7 +188,7 @@ function checkAndroidPermission(){
         var hasRecordPermission = Ti.Android.hasPermission("android.permission.RECORD_AUDIO");
         if(!hasRecordPermission){
             Ti.Android.requestPermissions("android.permission.RECORD_AUDIO", function(e) {
-                console.log(e);
+                
             });
         }
     }
@@ -161,14 +204,14 @@ API.callByPost({url: "dateNow"}, {
         }
         anchor = COMMON.now();
         last_update = COMMON.now();
-        console.log("call init");
+        
         init();
     }
 });
 
 
 function onDuty(e){
-    console.log(e.name_list);
+    
 	var online_doctor = e.name_list;
 	var dr_id = Ti.App.Properties.getString('dr_id') || 0;
 	var status = false;
@@ -177,10 +220,10 @@ function onDuty(e){
 			status = true;
 		}
 	};
+	var name = Ti.App.Properties.getString('name');
+	socket.join_special_room({name: name, dr_id: dr_id});
 
 	if($.onDuty.value != status){
-	   var name = Ti.App.Properties.getString('name');
-	   socket.join_special_room({name: name, dr_id: dr_id});
 	   $.onDuty.value = status;
 	   $.lbl_onoff.text = (status)?"Duty On":"Duty Off";
 	}
@@ -190,7 +233,7 @@ function onDuty(e){
 function update_online_status(e){
 	var name = Ti.App.Properties.getString('name');
 	var dr_id = Ti.App.Properties.getString('dr_id') || 0;
-	console.log(e);
+	
 	if(e.value){
 	    socket.join_special_room({name: name, dr_id: dr_id});
 	}else{
@@ -201,7 +244,7 @@ function update_online_status(e){
 	var device_token = Ti.App.Properties.getString('deviceToken');
 	var u_id = Ti.App.Properties.getString('dr_id');
 	API.callByPost({url: "updateDoctorDeviceToken", params: {u_id: u_id, device_id: device_token}}, {onload: function(res){
-	    console.log(res);
+	    
 	}});
 }
 
@@ -216,13 +259,17 @@ Ti.App.addEventListener('socket_loaded', socket_loaded);
 Ti.App.addEventListener('home:refresh',refresh);
 
 function resumed(){
-    console.log("home resume");
-    refresh();
+    
+    refresh({from: "resumed"});
 }
 
 $.win.addEventListener("open", function(){
-   var PUSH = require('push');
-   PUSH.registerPush();
+   var channel = Ti.App.Properties.getString('category')||"";
+   if(channel == ""){
+     doLogout();
+   }else{
+   	 setTimeout(function(){PUSH.subscribeToChannel(channel);}, 1000);
+   }
 });
 
 Ti.App.addEventListener("resumed", resumed);

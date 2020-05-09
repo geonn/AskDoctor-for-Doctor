@@ -1,0 +1,43 @@
+<Alloy>
+	<Window id="win" title="Home">
+	    <ScrollView class="wfill hfill conthsize contwfill" >
+	        <View class="wfill hfill vert" top="0">
+	    	    <View class="hfill wfill">
+	    	    	<TableView dataCollection="chats"  onScroll="scrollChecker" bubbleParent="false" class='hfill wfill vert conthsize contwfill table_blank' bottom="50" top="50" id="chatroom">
+			  <TableViewRow>
+			  	<View  format="{format}" class="hsize vert rounded" width= "75%" top="10" backgroundColor="{bgColor}" left="{setLeft}" right="{setRight}" >
+			  			<Label class="h6 wfill hsize bold" top="5" left="10" bottom= "15" color="#fff" text="{sender_name}"/>
+			  			<Label class="h7 wsize hsize"  left="10" bottom= "0"  text="{created}"/>
+			  			<View height="1"  width="Ti.UI.FILL" backgroundColor="#ccc" top="5" left="10" right="10"></View>
+			  			<View class="wsize hsize">
+							<Label visible="{text_visible}" class="h5 wfill hsize padding" top="5" color="{text_color}" text="{newText}"></Label>
+							<ImageView visible="{photo_visible}" class="wfill hsize padding" height="{image_height}" onClick="imageZoom" image="{image}"></ImageView>
+							<View visible="{voice_visible}" width="Ti.UI.FILL" height="30">
+								<ImageView new="true" image="/images/play_button.png" voice="{voice}" top="0" height="30" width="30" left="10" right="10" zIndex="10" id="playStopBtn" onClick="onPlayStopBtnClicked"></ImageView>
+								<Label left="50" id="time" color="#fff" />
+							</View>
+						</View>
+			  	</View>
+			  </TableViewRow>
+			</TableView>
+    	    	<!--<ScrollView  showVerticalScrollIndicator="true" onPostlayout="getHeight" onScroll="scrollChecker" bubbleParent="false" class='hfill wfill vert conthsize contwfill' bottom="50" top="50" id="chatroom">
+    	    		<View id="inner_area" class='wfill hsize vert'>
+
+    	    		</View>
+    	    	</ScrollView>-->
+    	    	</View>
+	    	</View>
+	    	<Button class="button" onClick="doAction" id="action_button" top="10" backgroundColor="#00c8a9">End Session</Button>
+	    	<View class="wfill vert hsize" bottom="0" >
+	    		<View backgroundColor="#20243e" class="wfill hsize" bottom="0" id='bottom_bar'>
+			    	<ImageView backgroundColor="#20243e" image="/images/icons/icon_photo_camera.png" top="15" bottom="10" zIndex="3" left="10" height="30" width="30" onClick="popCamera"></ImageView>
+			    <!-->	<TextField id="message" onChange="switchIcon" font="fontSize: 40" class="small_padding wfill" left="50" bottom="10" right="50" height="40" ></TextField>-->
+			    <TextArea backgroundColor="#fff" borderRadius="5" id="message" onChange="switchIcon" font="fontSize: 40" class="wfill" top='10' left="50" right="50" suppressReturn="false" lines="1"></TextArea>
+			    	<View id="action_btn" right="0" height="50" class="wsize hsize" backgroundColor="#20243e">
+			    		<ImageView id="enter_icon" backgroundColor="#20243e" image="/images/icons/icon_enter.png" top="10" bottom="10" zIndex="3" right="-50" height="30" width="30" onClick="SendMessage"></ImageView>
+			    	</View>
+		    </View>
+	    	</View>
+    	</ScrollView>
+    </Window>
+</Alloy>

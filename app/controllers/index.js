@@ -6,13 +6,13 @@ Alloy.Globals.Navigator = {
 	 * Handle to the Navigation Controller
 	 */
 	navGroup: $.nav,
-	
+
 	open: function(controller, payload){
 		var controller = Alloy.createController(controller, payload || {});
 		var win = controller.getView();
 		if(OS_IOS){
 			_.debounce(this.navGroup.openWindow(win), 1000, true);
-			
+
 		}else{
 			// added this property to the payload to know if the window is a child
 			if(typeof payload != "undefined"){
@@ -27,7 +27,7 @@ Alloy.Globals.Navigator = {
 				}
 			}
 			_.debounce(win.open({navBarHidden: false, fullscreen: false}), 1000, true);
-			
+
 		}
 		return controller;
 	},
@@ -58,7 +58,7 @@ if(!OS_IOS){
 }
 
 function init(){
-	var user = require("user"); 
+	var user = require("user");
 	user.checkAuth(_callback);
 }
 
@@ -74,14 +74,14 @@ function loadingViewFinish(){
 }
 Ti.App.addEventListener('app:loadingViewFinish', loadingViewFinish);
 Ti.App.addEventListener('app:_callback', _callback);
-function _callback(){
+function _callback(e){
 	/*loadingView = Alloy.createController("loader");
 	console.log("callback from login");
 	loadingView.getView().open();
 	loadingView.start();*/
 	console.log("callback called");
 	Alloy.Globals.Navigator.navGroup.open({navBarHidden: true, fullscreen: false});
-	Ti.App.fireEvent("home:refresh");
+	Ti.App.fireEvent("home:refresh",{from: (typeof e != "undefined")?e.from:"index"});
 }
 
 init();
